@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Resurge is an iOS habit & addiction recovery app built with SwiftUI, Core Data, and MVVM architecture. It supports 12 recovery programs (smoking, alcohol, porn, phone, social media, gaming, procrastination, sugar, emotional eating, shopping, gambling, sleep). Bundle ID: `com.resurge.app`. Deployment target: iOS 15+. Fully offline — no servers, no accounts, no internet required.
+Resurge is an iOS habit & addiction recovery app built with SwiftUI, Core Data, and MVVM architecture. It supports 10 recovery programs (smoking, alcohol, porn, phone, social media, gaming, sugar, emotional eating, shopping, gambling). Bundle ID: `com.resurge.app`. Deployment target: iOS 15+. Fully offline — no servers, no accounts, no internet required.
 
 ## Build & Run
 
@@ -23,47 +23,97 @@ Resurge is an iOS habit & addiction recovery app built with SwiftUI, Core Data, 
 - `App/ResurgeApp.swift` — Entry point, routes between onboarding and main tabs based on `@AppStorage("hasCompletedOnboarding")`
 - `App/AppEnvironment.swift` — DI container holding all repositories and services. Uses `StoreKit2Provider` for real IAP. Injected via `.environmentObject()`
 - `CoreData/` — 14 NSManagedObject subclasses (CD-prefixed: CDHabit, CDDailyLogEntry, etc.) + CoreDataStack with persistent and in-memory preview stores
-- `Models/` — Domain enums/structs (ProgramType, MilestoneBadge, CravingToolKind, RewardSystem, RecoveryArticle, QuoteBank, ProgramSetupField, HealthTimeline, GoalMode, PremiumFeature, etc.)
+- `Models/` — Domain enums/structs (ProgramType, MilestoneBadge, CravingToolKind, ShardEconomy, RecoveryArticle, QuoteBank, ProgramSetupField, HealthTimeline, GoalMode, PremiumFeature, etc.)
 - `Repositories/` — 5 protocol + CoreData implementations (Habit, Log, Craving, Journal, Achievement)
 - `Services/` — Business logic:
   - `IAP/` — StoreKit2Provider (real purchases), MockIAPProvider (testing), EntitlementManager (feature gating)
-  - `Companion/` — VirtualCompanionService (mood from recovery data, streak-based leveling)
+  - `RewardService.swift` — Surge (currency) awarding and spending
+  - `DebugDate.swift` — Global date override for time travel testing (REMOVE before App Store)
   - `MetricsEngine.swift` — bestStreak, rolling7dFrequency, resilienceRate, improvementVsBaseline
   - `CorrelationEngine.swift` — Spearman correlations between daily check-in fields
+  - `AchievementEvaluationService.swift` — Badge unlock evaluation with popup queue
   - NotificationManager, CoachingPlanService, DailyChallengeService
 - `ViewModels/` — One per major feature (Home, HabitDetail, CravingMode, Journal, Settings, Analytics, Onboarding)
 - `Features/` — UI screens organized by feature:
-  - `Onboarding/` — WelcomeView (sparkle particles + rainbow), AddHabitOnboardingView (animated habit cards), ProgramSetupView (dropdown pickers + start date), SeverityAssessmentView, WhyGoalsView, NotificationSetupView, SubscriptionOfferView
-  - `Home/` — HomeView (hero sobriety counter, stat pills, quick actions, next milestone), HabitDetailView, HabitCardView, CoachingPlanView, DailyChallengeView, DailyCheckInView, QuickCheckInView, LapseReviewView (6-step flow), CompanionView (Recovery Guardian with contextual messages)
-  - `Progress/` — ProgressDashboardView (6 sections: streaks, money, time, badges, journal stats, recovery points)
-  - `Library/` — LibraryHomeView, RecoveryLibraryView (CBT/ACT/SMART/MBRP), ArticleReaderView, ArticleDetailView
-  - `Profile/` — RewardsView (collectibles + Recovery Points)
-  - `CravingTools/` — CravingModeView, EmergencyModeView, CravingToolsView, RememberWhyView
-  - `Journal/` — JournalView (date-grouped, tags, daily prompt), JournalEditorView (tags, shuffle prompts)
-  - `Achievements/` — AchievementsView, GoalLadderView, ConfettiView
-  - Also: Analytics/, Settings/, ProgramTools/ (12 program-specific tools), ActivityLog/
-- `ProgramTemplates/` — 12 program templates with triggers, coping tools, metrics, insight cards, and setup fields
-- `Views/` — Shared: MainTabView (Home/Journal/Progress/More), ProgressRingView, PremiumGateView, SobrietyCounterView, DailyQuoteCard, EmergencyButton
-- `Theme/` — Rainbow gradient theme matching logo (cyan→blue→purple→magenta→orange→gold on deep navy #05051A). Typography, AppStyle, NeonCardModifier, RainbowCardModifier, RainbowButtonStyle, RainbowTextModifier, SparkleParticlesView, RainbowDivider
+  - `Onboarding/` — WelcomeView (logo + rainbow), TimezoneSetupView, AddHabitOnboardingView (animated habit cards), ProgramSetupView, WhyGoalsView, NotificationSetupView, SubscriptionOfferView, SurgesIntroView
+  - `Home/` — HomeView (sobriety counter, daily loop, scoreboard, goal card), HabitDetailView, CoachingPlanView (per-habit daily tasks), MorningPlanView, QuickCheckInView, EveningReviewView, GoalCompleteView, AddEditHabitView (3-step: select → customize → why)
+  - `Progress/` — ProgressDashboardView (streaks, money, time reclaimed, badges, journal stats, recovery calendar)
+  - `Library/` — LibraryHomeView, RecoveryLibraryView (CBT/ACT/SMART/MBRP), ArticleReaderView
+  - `Profile/` — VaultShopView (Surges shop: celebrations, power-ups, themes, pets, accessories)
+  - `CravingTools/` — CravingModeView (per-habit craving protocol), EmergencyModeView, individual tools
+  - `Journal/` — JournalView (date-grouped, tags, daily prompt), JournalEditorView (also handles gratitude entries)
+  - `Achievements/` — AchievementsView (surge balance + vault shop squares, badge vault, category sections), BadgeEmblemView (custom shapes: flames, watches, medallions), WatchFaceView, BadgeUnlockPopup
+  - `Companion/` — CompanionPetViews (4 animated pets: Pup, Kitten, Nibbles, Owlet)
+  - `ActivityLog/` — ActivityLogView (swipe-to-delete, per-habit filtering, date stamps on all entries)
+  - Also: Analytics/, Settings/ (DebugTimeTravelView, StealthSettingsView, NotificationSettingsView)
+- `ProgramTemplates/` — 10 program templates with triggers, coping tools, metrics, insight cards
+- `Views/` — Shared: MainTabView (Home/Plan/Toolkit/Insights/Settings), ActivePetView, CelebrationOverlayView, BadgeUnlockPopupView, SobrietyCounterView, EmergencyButton
+- `Theme/` — ThemeColors (cached singleton with auto-refresh), 5 themes (Default, Midnight, Neon Jungle, Ultraviolet, Ocean). Typography, AppStyle, NeonCardModifier, RainbowButtonStyle
 
 ## Key Conventions
 
 - Core Data entity classes are prefixed with `CD` (e.g., `CDHabit`, `CDDailyLogEntry`)
 - Use `NSFetchRequest<CDEntity>(entityName: "CDEntity")` instead of `CDEntity.fetchRequest()` to avoid type mismatch
-- iOS 15+ compatibility: use `Font.xxx.weight(.bold)` instead of `.fontWeight(.bold)` (iOS 16+ only)
-- Optional SDK imports guarded with `#if canImport(RevenueCat)`, `#if canImport(FirebaseAnalytics)` — all currently inactive
+- iOS 15+ compatibility: use `Font.xxx.weight(.bold)` instead of `.fontWeight(.bold)` (iOS 16+ only), avoid `.scrollContentBackground`, `.italic()` standalone
+- Use `DebugDate.now` instead of `Date()` for all date comparisons/calculations (supports time travel debug). Use real `Date()` only for `createdAt` timestamps.
+- `ThemeColors.shared` caches theme colors — call `.refreshIfNeeded()` automatically on access. Call `.refresh()` explicitly when theme changes.
 - App is fully offline — no servers, no accounts, no tracking
 - Premium gating via `EntitlementManager`:
-  - **Free**: 1 habit, daily motivation quotes, companion (basic mood), daily challenges, basic badges, journal, craving tools, lapse review
-  - **Premium**: Unlimited habits, advanced analytics, recovery library, coaching plans, reward collectibles, biometric lock, companion evolution
+  - **Free**: 1 habit, daily loop (3 check-ins), 1 daily quote, journal, craving tools, basic badges, earn Surges (15/day)
+  - **Premium**: Unlimited habits, advanced analytics, 5x daily quotes, coaching plans, all badges unlockable
 - Pricing: Monthly $4.99, Yearly $29.99, Lifetime $59.99 (configured in `Resurge.storekit`)
 
 ## Tab Structure
 
-1. **Home** — Hero sobriety counter, daily action card, stat pills, quick actions, next milestone
-2. **Journal** — Date-grouped entries, tags (gratitude/trigger/reflection/win/struggle), daily prompts
-3. **Progress** — Streaks, money saved, time reclaimed, badges, journal stats, recovery points
-4. **More** — Settings, notifications, privacy, subscription, emergency contacts, export, privacy policy, terms
+1. **Home** — Date + pet in nav bar, sobriety counter, daily loop (morning/afternoon/evening), scoreboard (days/cravings/lapses/activity log), goal card, craving protocol button
+2. **Plan** — Weekly dot calendar, If-Then plans, new day/week prompts, high-risk windows
+3. **Toolkit** — Workbook (journal, gratitude, coaching), craving tools (breathing, puzzle, focus shift, urge defusion, etc.), reasons vault, emergency/crisis helplines
+4. **Insights** — Streak calendar, money saved, time reclaimed, badges section, journal stats, recent activity with dates
+5. **Settings** — Notifications (daily loop + motivational boosts), stealth mode, subscription, emergency contacts, privacy, backup, time travel debug
+
+## Surge Economy
+
+- Currency: "Surges" (internal code still uses "shard" variable names)
+- Earning: 15/day ONLY from daily loop (Morning 5 + Afternoon 5 + Evening 5)
+- Spending: Vault Shop items (celebrations, power-ups, themes, pets, accessories)
+- Storage: `CDRewardWallet` (Core Data) + `@AppStorage("shardBalance")` for quick display
+- `CelebrationManager` — triggers full-screen animations when owned packs' conditions are met
+- `BadgeUnlockManager` — queues badge unlock popups one at a time
+
+## Lapse System
+
+- Lapse detected in: QuickCheckInView, EveningReviewView, CravingModeView (didResist=false)
+- On lapse: `habit.resetOnLapse()` moves `startDate` to `DebugDate.now`
+- Resets: days, streak, timer, health milestones, time reclaimed, money saved, goal progress
+- Keeps: badges earned, analytics/history, journal entries, Surges balance, lapse counter goes up
+- Comforting message shown on all 3 lapse screens
+
+## Badge System
+
+- **Streak badges** (8): 3d → 365d, flame shape with animated gradient colors
+- **Time Reclaimed badges** (10): 5h → 1000h (Timeless Legend), watch faces that get more sophisticated
+- **Health badges** (dynamic per habit): generated from HealthTimeline milestones, capped at 1 year
+- **Journal badges** (6): 1, 10, 50, 100, 250, 500 entries
+- **Program badges** (50): 7d, 30d, 90d, 180d, 365d per habit (10 habits × 5)
+- **Track badges** (20): Wave Rider, Resilience Builder, Plan Streak, Urge Scientist, Values Champ (4 tiers each)
+- **Behavior badges** (misc): craving crushers, week warrior, tool explorer
+- Evaluation runs on app foreground and via time travel debug
+- `BadgeUnlockManager.shared.enqueue()` shows popup immediately
+
+## Companion Pets
+
+- 4 pets: Pup (dog), Kitten (cat), Nibbles (hamster), Owlet (white owl with galaxy eyes)
+- Purchased from Vault Shop (500-800 Surges)
+- `ActivePetView` shows on all 5 tab nav bars with equipped accessories
+- Accessories: Tiny Hat, Cool Glasses, Royal Crown, Bowtie — positioned per-pet
+- Stored in `UserDefaults("activePet")` and `UserDefaults("equippedAccessories")`
+
+## Debug Tools (REMOVE before App Store)
+
+- `DebugDate.swift` — Global date offset for time travel
+- `DebugTimeTravelView` — Settings > Time Travel, shifts app date forward
+- `VaultShopView.loadPurchasedItems()` — gives 2000 Surges for testing
+- These are marked with comments in code
 
 ## SPM Dependencies
 
