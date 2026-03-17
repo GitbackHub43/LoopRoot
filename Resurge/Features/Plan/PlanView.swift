@@ -82,7 +82,7 @@ struct PlanView: View {
     private var calendar: Calendar { Calendar.current }
 
     private var currentWeekDates: [Date] {
-        let today = Date()
+        let today = DebugDate.now
         let weekday = calendar.component(.weekday, from: today)
         let startOfWeek = calendar.date(byAdding: .day, value: -(weekday - 1), to: calendar.startOfDay(for: today))!
         return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
@@ -115,7 +115,7 @@ struct PlanView: View {
     }
 
     private func isToday(_ date: Date) -> Bool {
-        calendar.isDateInToday(date)
+        calendar.isDate(date, inSameDayAs: DebugDate.now)
     }
 
     private func deletePlan(_ plan: CDIfThenPlan) {
@@ -126,7 +126,7 @@ struct PlanView: View {
     // MARK: - New Day / Week Detection
 
     private var todayString: String {
-        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"; return f.string(from: Date())
+        DebugDate.todayString
     }
 
     private var lastPlanDateKey: String {
@@ -134,20 +134,22 @@ struct PlanView: View {
         return "lastPlanDate_\(habit.id.uuidString)"
     }
 
-    /// True only if the user has plans AND hasn't already seen/dismissed the prompt today
-    private var shouldShowNewDayPrompt: Bool {
-        guard !filteredPlans.isEmpty else { return false }
+    private var hasPlans: Bool {
+        !filteredPlans.isEmpty
+    }
+
+    /// True if the user hasn't dismissed the prompt today
+    private var isNewDayForPrompt: Bool {
         let lastDate = UserDefaults.standard.string(forKey: lastPlanDateKey) ?? ""
         return lastDate != todayString
     }
 
-    private var isNewWeekDay: Bool {
-        Calendar.current.component(.weekday, from: Date()) == 1 // Sunday
+    private var isMonday: Bool {
+        Calendar.current.component(.weekday, from: DebugDate.now) == 2 // Monday
     }
 
-    private var planPromptMessage: String {
-        if isNewWeekDay { return "New week! Keep your current plan or create a new one?" }
-        return "New day. Keep your plan or create a new one?"
+    private var planDayCount: Int {
+        selectedHabit?.daysSoberCount ?? 0
     }
 
     private func keepCurrentPlan() {
@@ -236,8 +238,8 @@ struct PlanView: View {
         }
         .onAppear {
             migrateIfNeeded()
-            // Only show prompt if it's genuinely a new day AND not already dismissed
-            if shouldShowNewDayPrompt && !showNewWeekCard {
+            // Show prompt only if it's a new day and not already dismissed
+            if isNewDayForPrompt && !showNewWeekCard {
                 showNewWeekCard = true
             }
         }
@@ -325,9 +327,15 @@ struct PlanView: View {
 
     private var weeklyPlanSection: some View {
         VStack(alignment: .leading, spacing: AppStyle.spacing) {
-            Text("This Week")
-                .font(Typography.title)
-                .foregroundColor(.textPrimary)
+            HStack {
+                Text("This Week")
+                    .font(Typography.title)
+                    .foregroundColor(.textPrimary)
+                Spacer()
+                Text("Day \(planDayCount)")
+                    .font(Typography.headline)
+                    .foregroundColor(.neonCyan)
+            }
 
             Text(weekDateRangeString)
                 .font(Typography.caption)
@@ -368,25 +376,33 @@ struct PlanView: View {
 
     private var newWeekCard: some View {
         VStack(spacing: AppStyle.spacing) {
-            HStack(spacing: 8) {
-                Image(systemName: "calendar.badge.clock")
-                    .font(.system(size: 18))
-                    .foregroundColor(.neonGold)
-                Text(isNewWeekDay ? "New Week Detected" : "New Day")
-                    .font(Typography.headline)
-                    .foregroundColor(.appText)
-            }
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 18))
+                        .foregroundColor(.neonGold)
+                    Text(isMonday ? "New Week" : "New Day")
+                        .font(Typography.headline)
+                        .foregroundColor(.appText)
 
-            Text(planPromptMessage)
-                .font(Typography.caption)
-                .foregroundColor(.subtleText)
+                    Spacer()
 
-            HStack(spacing: 12) {
-                Button {
-                    keepCurrentPlan()
-                } label: {
-                    Text("Keep Plan")
+                    Text("Day \(planDayCount)")
                         .font(Typography.caption)
+                        .foregroundColor(.neonCyan)
+                }
+
+                Text(isMonday
+                     ? "New week ahead! Keep your current plan or create a fresh one?"
+                     : "New day. Keep your plan or switch it up?")
+                    .font(Typography.caption)
+                    .foregroundColor(.subtleText)
+
+                HStack(spacing: 12) {
+                    Button {
+                        keepCurrentPlan()
+                    } label: {
+                        Text("Keep Plan")
+                            .font(Typography.caption)
                         .foregroundColor(.neonGreen)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)

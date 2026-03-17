@@ -20,7 +20,7 @@ struct ProgressDashboardView: View {
     @State private var selectedHabitIndex: Int = 0
 
     // Calendar state
-    @State private var selectedMonth: Date = Date()
+    @State private var selectedMonth: Date = DebugDate.now
 
     // Collapsible streak+calendar
     @State private var isStreakCalendarExpanded: Bool = true
@@ -187,7 +187,7 @@ struct ProgressDashboardView: View {
         let firstWeekday = calendar.component(.weekday, from: monthStart)
         let leadingBlanks = firstWeekday - 1
         let logEntries = fetchLogEntries(for: monthStart)
-        let today = calendar.startOfDay(for: Date())
+        let today = DebugDate.startOfToday
 
         return VStack(alignment: .leading, spacing: AppStyle.spacing) {
             // Header with chevron toggle
@@ -417,7 +417,8 @@ struct ProgressDashboardView: View {
     // MARK: - [4] Badges Section
 
     private var badgesSection: some View {
-        let allBadges = MilestoneBadge.allBadges
+        let healthBadgesForHabit = MilestoneBadge.healthBadges(for: selectedProgramType)
+        let allBadges = MilestoneBadge.allBadges + healthBadgesForHabit
         let recentUnlocked = allBadges.filter { unlockedKeys.contains($0.key) }.prefix(4)
 
         return VStack(alignment: .leading, spacing: AppStyle.spacing) {
@@ -551,9 +552,17 @@ struct ProgressDashboardView: View {
                                 Text(event.description)
                                     .font(.subheadline.weight(.medium))
                                     .foregroundColor(.appText)
-                                Text(event.relativeTime)
-                                    .font(Typography.caption)
-                                    .foregroundColor(.subtleText)
+                                HStack(spacing: 6) {
+                                    Text({
+                                        let f = DateFormatter(); f.dateFormat = "MMM d, h:mm a"
+                                        return f.string(from: event.date)
+                                    }())
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.subtleText.opacity(0.7))
+                                    Text(event.relativeTime)
+                                        .font(Typography.caption)
+                                        .foregroundColor(.subtleText)
+                                }
                             }
 
                             Spacer()
@@ -648,7 +657,7 @@ struct ProgressDashboardView: View {
         }
 
         // No data for this day
-        let today = calendar.startOfDay(for: Date())
+        let today = DebugDate.startOfToday
         if date <= today {
             return DayDisplayStatus(color: Color.gray.opacity(0.15), textColor: .subtleText, showFlame: false)
         }
@@ -787,7 +796,7 @@ struct ProgressDashboardView: View {
     }
 
     private func relativeTimeString(from date: Date) -> String {
-        let now = Date()
+        let now = DebugDate.now
         let interval = now.timeIntervalSince(date)
 
         if interval < 60 {

@@ -35,8 +35,8 @@ final class AchievementEvaluationService {
 
             switch badge.category {
             case .time:
-                // Time badges: based on days sober
-                shouldUnlock = badge.requiredDays > 0 && days >= badge.requiredDays
+                // Time badges: requiredDays stores HOURS — check against time reclaimed
+                shouldUnlock = badge.requiredDays > 0 && timeSavedHours >= badge.requiredDays
 
             case .streak:
                 // Streak badges: based on current streak

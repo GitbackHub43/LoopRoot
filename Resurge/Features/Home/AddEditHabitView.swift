@@ -16,7 +16,7 @@ struct AddEditHabitView: View {
 
     @State private var name: String = ""
     @State private var selectedProgramType: ProgramType = .smoking
-    @State private var startDate: Date = Date()
+    @State private var startDate: Date = DebugDate.now
     @State private var goalDays: Int = 30
     @State private var costPerUnit: String = ""
     @State private var timePerUnit: String = ""
@@ -663,11 +663,40 @@ struct AddEditHabitView: View {
     }
 
     private func saveHabit() {
-        // Extract numeric values from program setup fields
-        let setupKeys = programSetupValues
+        // Extract numeric values from program setup fields and usage fields
         let parsedCost = Double(costPerUnit) ?? 0
-        let parsedTime = Double(timePerUnit) ?? 0
-        let parsedUnits = Double(dailyUnits) ?? 0
+        var parsedTime = Double(timePerUnit) ?? 0
+        var parsedUnits = Double(dailyUnits) ?? 0
+
+        // If usage fields are empty, derive from program setup values
+        if parsedUnits == 0 {
+            // Try common setup keys for daily units
+            for key in ["cigarettesPerDay", "drinksPerWeek", "hoursPerDay", "sessionsPerDay",
+                        "screenTimeHoursPerDay", "gamingHoursPerDay", "socialMediaHoursPerDay",
+                        "sugaryItemsPerDay", "episodesPerWeek", "purchasesPerWeek",
+                        "sessionsPerWeek", "unitsPerDay"] {
+                if let val = programSetupValues[key], let num = Double(val), num > 0 {
+                    parsedUnits = num
+                    break
+                }
+            }
+        }
+
+        // Default time per unit if not set (reasonable estimates per program)
+        if parsedTime == 0 && parsedUnits > 0 {
+            switch selectedProgramType {
+            case .smoking: parsedTime = 5          // 5 min per cigarette
+            case .alcohol: parsedTime = 30         // 30 min per drink
+            case .porn: parsedTime = 30            // 30 min per session
+            case .phone: parsedTime = 60           // already in hours
+            case .gaming: parsedTime = 60          // already in hours
+            case .socialMedia: parsedTime = 60     // already in hours
+            case .sugar: parsedTime = 5            // 5 min per sugary item
+            case .emotionalEating: parsedTime = 20 // 20 min per episode
+            case .shopping: parsedTime = 15        // 15 min per impulse purchase
+            case .gambling: parsedTime = 30        // 30 min per session
+            }
+        }
 
         switch mode {
         case .add:

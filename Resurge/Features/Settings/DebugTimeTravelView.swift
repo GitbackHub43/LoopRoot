@@ -24,16 +24,16 @@ struct DebugTimeTravelView: View {
     }
 
     private let timeJumps: [(label: String, days: Int)] = [
-        ("1 Day Ago", 1),
-        ("3 Days Ago", 3),
-        ("7 Days Ago", 7),
-        ("14 Days Ago", 14),
-        ("30 Days Ago", 30),
-        ("60 Days Ago", 60),
-        ("90 Days Ago", 90),
-        ("180 Days Ago", 180),
-        ("270 Days Ago", 270),
-        ("365 Days Ago", 365),
+        ("+1 Day", 1),
+        ("+3 Days", 3),
+        ("+7 Days", 7),
+        ("+14 Days", 14),
+        ("+30 Days", 30),
+        ("+60 Days", 60),
+        ("+90 Days", 90),
+        ("+180 Days", 180),
+        ("+270 Days", 270),
+        ("+365 Days", 365),
     ]
 
     var body: some View {
@@ -84,11 +84,29 @@ struct DebugTimeTravelView: View {
                         }
                     }
 
+                    // Debug offset status
+                    if DebugDate.offsetDays != 0 {
+                        HStack {
+                            Image(systemName: "clock.badge.exclamationmark")
+                                .foregroundColor(.neonOrange)
+                            Text("Simulated date: ")
+                                .font(Typography.caption)
+                                .foregroundColor(.neonOrange)
+                            Text(DebugDate.now, style: .date)
+                                .font(Typography.headline)
+                                .foregroundColor(.neonOrange)
+                            Spacer()
+                        }
+                        .padding(10)
+                        .background(Color.neonOrange.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+
                     // Current status
                     if let habit = selectedHabit {
                         VStack(spacing: 8) {
                             HStack {
-                                Text("Current Start Date:")
+                                Text("Habit Start Date:")
                                     .font(Typography.caption)
                                     .foregroundColor(.subtleText)
                                 Spacer()
@@ -215,12 +233,15 @@ struct DebugTimeTravelView: View {
     }
 
     private func setStartDate(daysAgo: Int) {
-        guard let habit = selectedHabit else { return }
-        let calendar = Calendar.current
-        let newDate = calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: Date())) ?? Date()
-        habit.startDate = newDate
-        habit.updatedAt = Date()
-        try? viewContext.save()
+        // Set global date offset — makes the entire app think it's X days in the future
+        DebugDate.offsetDays = daysAgo
+
+        // Also stamp today's plan date so daily loop and plan prompts reset
+        if let habit = selectedHabit {
+            let key = "lastPlanDate_\(habit.id.uuidString)"
+            UserDefaults.standard.removeObject(forKey: key)
+            UserDefaults.standard.removeObject(forKey: "lastMorningPlanDate")
+        }
 
         // Immediately evaluate badges for all habits
         for h in activeHabits {
@@ -230,7 +251,7 @@ struct DebugTimeTravelView: View {
         // Force Core Data to push changes to all @FetchRequest views
         viewContext.refreshAllObjects()
 
-        lastAction = daysAgo == 0 ? "Reset to today" : "Set to \(daysAgo) days ago — badges evaluated"
+        lastAction = daysAgo == 0 ? "Reset to real time" : "Jumped +\(daysAgo) days — badges evaluated"
         withAnimation { showConfirmation = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation { showConfirmation = false }

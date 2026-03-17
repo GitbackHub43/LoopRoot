@@ -43,20 +43,32 @@ struct QuickCheckInView: View {
 
     // MARK: - Check-In Content
 
+    private var entryDate: String {
+        let f = DateFormatter(); f.dateStyle = .long
+        return f.string(from: existingEntry?.createdAt ?? initialEntry?.createdAt ?? DebugDate.now)
+    }
+
     private var checkInContent: some View {
         VStack(spacing: AppStyle.largeSpacing) {
             // Header
-            HStack {
-                Text("Afternoon Check-In")
-                    .font(Typography.title)
-                    .rainbowText()
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.textSecondary)
+            VStack(spacing: 4) {
+                HStack {
+                    Text("Afternoon Check-In")
+                        .font(Typography.title)
+                        .rainbowText()
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.textSecondary)
+                    }
+                }
+                HStack(spacing: 8) {
+                    Image(systemName: "sun.max.fill").foregroundColor(.neonCyan)
+                    Text(entryDate).font(Typography.callout).foregroundColor(.textSecondary)
+                    Spacer()
                 }
             }
             .padding(.horizontal, AppStyle.screenPadding)
@@ -359,7 +371,7 @@ struct QuickCheckInView: View {
             return
         }
 
-        let today = Calendar.current.startOfDay(for: Date())
+        let today = DebugDate.startOfToday
         let request = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
         request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "habit == %@", habit),
@@ -398,7 +410,7 @@ struct QuickCheckInView: View {
         } else {
             entry = CDDailyLogEntry(context: viewContext)
             entry.id = UUID()
-            entry.date = Calendar.current.startOfDay(for: Date())
+            entry.date = DebugDate.startOfToday
             entry.createdAt = Date()
             entry.habit = habit
         }
@@ -442,7 +454,7 @@ struct QuickCheckInView: View {
     }
 
     private func checkDailyLoopCompletion() {
-        let today = Calendar.current.startOfDay(for: Date()) as NSDate
+        let today = DebugDate.startOfToday as NSDate
         let types = ["morning", "afternoon", "evening"]
         var completedCount = 0
         for entryType in types {

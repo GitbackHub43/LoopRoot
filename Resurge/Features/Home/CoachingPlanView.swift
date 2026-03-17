@@ -11,9 +11,6 @@ struct CoachingPlanView: View {
     @FetchRequest private var plans: FetchedResults<CDCoachingPlan>
 
     @State private var isGenerating = false
-    @AppStorage("coachingTaskCompletedDate") private var coachingTaskCompletedDate: String = ""
-    @AppStorage("coachingStreakCount") private var coachingStreakCount: Int = 0
-    @AppStorage("coachingStreakLastDate") private var coachingStreakLastDate: String = ""
 
     // MARK: - All Tasks (cycle infinitely)
 
@@ -93,6 +90,20 @@ struct CoachingPlanView: View {
         )
     }
 
+    // MARK: - Per-Habit Keys
+
+    private var completedDateKey: String { "coachingCompleted_\(habit.id.uuidString)" }
+    private var streakCountKey: String { "coachingStreak_\(habit.id.uuidString)" }
+    private var streakLastDateKey: String { "coachingStreakLast_\(habit.id.uuidString)" }
+
+    private var coachingTaskCompletedDate: String {
+        get { UserDefaults.standard.string(forKey: completedDateKey) ?? "" }
+    }
+
+    private var coachingStreakCount: Int {
+        get { UserDefaults.standard.integer(forKey: streakCountKey) }
+    }
+
     // MARK: - Computed
 
     private var activePlan: CDCoachingPlan? {
@@ -110,7 +121,7 @@ struct CoachingPlanView: View {
     }
 
     private var isCompletedToday: Bool {
-        let todayString = formattedDate(Date())
+        let todayString = formattedDate(DebugDate.now)
         return coachingTaskCompletedDate == todayString
     }
 
@@ -123,13 +134,9 @@ struct CoachingPlanView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: AppStyle.largeSpacing) {
-                if activePlan != nil {
-                    headerSection
-                    streakSection
-                    todayTaskSection
-                } else {
-                    emptyState
-                }
+                headerSection
+                streakSection
+                todayTaskSection
             }
             .padding(.vertical, AppStyle.spacing)
         }
@@ -328,18 +335,21 @@ struct CoachingPlanView: View {
     }
 
     private func completeTask() {
-        let todayString = formattedDate(Date())
-        let yesterdayString = formattedDate(Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date())
+        let todayString = formattedDate(DebugDate.now)
+        let yesterdayString = formattedDate(Calendar.current.date(byAdding: .day, value: -1, to: DebugDate.now) ?? DebugDate.now)
 
-        // Update streak
-        if coachingStreakLastDate == yesterdayString {
-            coachingStreakCount += 1
-        } else if coachingStreakLastDate != todayString {
-            coachingStreakCount = 1
+        // Update streak (per-habit)
+        let lastDate = UserDefaults.standard.string(forKey: streakLastDateKey) ?? ""
+        var streak = UserDefaults.standard.integer(forKey: streakCountKey)
+        if lastDate == yesterdayString {
+            streak += 1
+        } else if lastDate != todayString {
+            streak = 1
         }
 
-        coachingTaskCompletedDate = todayString
-        coachingStreakLastDate = todayString
+        UserDefaults.standard.set(todayString, forKey: completedDateKey)
+        UserDefaults.standard.set(todayString, forKey: streakLastDateKey)
+        UserDefaults.standard.set(streak, forKey: streakCountKey)
     }
 
     private func formattedDate(_ date: Date) -> String {

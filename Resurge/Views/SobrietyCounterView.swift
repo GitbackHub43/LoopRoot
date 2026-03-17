@@ -6,7 +6,7 @@ struct SobrietyCounterView: View {
     let startDate: Date
     var isCompact: Bool = false
 
-    @State private var now = Date()
+    @State private var now = DebugDate.now
     @State private var glowOpacity: Double = 0.15
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -31,8 +31,8 @@ struct SobrietyCounterView: View {
                 fullLayout(parts: parts)
             }
         }
-        .onReceive(timer) { time in
-            now = time
+        .onReceive(timer) { _ in
+            now = DebugDate.now
         }
     }
 

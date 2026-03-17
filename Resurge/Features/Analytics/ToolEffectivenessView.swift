@@ -39,8 +39,8 @@ struct ToolEffectivenessView: View {
 
     private static let knownTools: [CravingToolKind] = [
         .breathing, .puzzle, .quotes, .journaling, .bodyOverride,
-        .urgeDefusion, .urgeLog, .copingSimulator, .refusalScript,
-        .futureThinking, .approachBias, .focusShift, .cravingLab, .valuesCompass
+        .urgeDefusion, .copingSimulator,
+        .futureThinking, .focusShift, .valuesCompass
     ]
 
     private func toolKind(for name: String) -> CravingToolKind? {

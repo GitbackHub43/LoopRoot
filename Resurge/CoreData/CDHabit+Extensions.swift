@@ -42,7 +42,7 @@ public class CDHabit: NSManagedObject, Identifiable {
     public var daysSoberCount: Int {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: startDate)
-        let today = calendar.startOfDay(for: Date())
+        let today = DebugDate.startOfToday
         guard today >= start else { return 0 }
         let components = calendar.dateComponents([.day], from: start, to: today)
         return max(components.day ?? 0, 0)
@@ -55,7 +55,7 @@ public class CDHabit: NSManagedObject, Identifiable {
         }
 
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let today = DebugDate.startOfToday
         let start = calendar.startOfDay(for: startDate)
         guard today >= start else { return 0 }
 
@@ -99,7 +99,26 @@ public class CDHabit: NSManagedObject, Identifiable {
         if baselineTimePerDay > 0 {
             return baselineTimePerDay * Double(days)
         }
-        return timePerUnit * dailyUnits * Double(days)
+        if timePerUnit > 0 && dailyUnits > 0 {
+            return timePerUnit * dailyUnits * Double(days)
+        }
+        // Fallback: estimate based on program type if no values were set
+        let pt = ProgramType(rawValue: programType)
+        let defaultMinPerDay: Double
+        switch pt {
+        case .smoking: defaultMinPerDay = 100     // ~20 cigs × 5 min
+        case .alcohol: defaultMinPerDay = 60      // ~2 drinks × 30 min
+        case .porn: defaultMinPerDay = 60         // ~2 sessions × 30 min
+        case .phone: defaultMinPerDay = 240       // ~4 hours screen time
+        case .gaming: defaultMinPerDay = 180      // ~3 hours gaming
+        case .socialMedia: defaultMinPerDay = 120 // ~2 hours scrolling
+        case .sugar: defaultMinPerDay = 30        // ~6 items × 5 min
+        case .emotionalEating: defaultMinPerDay = 40  // ~2 episodes × 20 min
+        case .shopping: defaultMinPerDay = 30     // ~2 purchases × 15 min
+        case .gambling: defaultMinPerDay = 60     // ~2 sessions × 30 min
+        case .none: defaultMinPerDay = 30
+        }
+        return defaultMinPerDay * Double(days)
     }
 
     // MARK: - Lapse Reset
@@ -108,7 +127,7 @@ public class CDHabit: NSManagedObject, Identifiable {
     /// Moves startDate to now so days, streak, health milestones, time reclaimed all restart.
     /// Does NOT touch: badges (already earned), analytics/history, journal entries, surges balance.
     public func resetOnLapse() {
-        startDate = Date()
+        startDate = DebugDate.now
         updatedAt = Date()
     }
 

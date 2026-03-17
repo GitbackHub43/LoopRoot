@@ -224,6 +224,19 @@ struct JournalEditorView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
+                        // Date header
+                        HStack(spacing: 8) {
+                            Image(systemName: entryContext == "gratitude" ? "heart.fill" : "book.fill")
+                                .foregroundColor(entryContext == "gratitude" ? .neonGold : .neonBlue)
+                            Text({
+                                let f = DateFormatter(); f.dateStyle = .long; f.timeStyle = .short
+                                return f.string(from: existingEntry?.createdAt ?? DebugDate.now)
+                            }())
+                                .font(Typography.callout)
+                                .foregroundColor(.subtleText)
+                            Spacer()
+                        }
+
                         // MARK: - Habit Picker
                         if preSelectedHabit == nil && habits.count > 1 {
                             VStack(alignment: .leading, spacing: 6) {

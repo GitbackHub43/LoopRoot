@@ -88,7 +88,7 @@ struct AchievementsView: View {
 
     private var journalBadges: [MilestoneBadge] {
         MilestoneBadge.behaviorBadges.filter { badge in
-            badge.title.lowercased().contains("journal")
+            badge.key.contains("journal")
         }
     }
 
@@ -115,127 +115,124 @@ struct AchievementsView: View {
                 Color.appBackground.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(spacing: 16) {
                         // MARK: - Habit Pill Switcher
                         if activeHabits.count > 1 {
                             achievementsHabitPillSwitcher
                         }
 
-                        // MARK: - Summary
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("\(unlockedKeys.count) / \(MilestoneBadge.allBadges.count)")
-                                    .font(.title.weight(.bold))
-                                    .rainbowText()
-                                Text("Badges for \(selectedHabitName)")
-                                    .font(.subheadline)
+                        // MARK: - Top: Surges + Vault Shop (2 squares)
+                        HStack(spacing: 10) {
+                            // Surge points square
+                            VStack(spacing: 6) {
+                                Image(systemName: "diamond.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundColor(.neonGold)
+                                    .shadow(color: .neonGold.opacity(0.4), radius: 6)
+                                Text("\(shardBalance)")
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .foregroundColor(.neonGold)
+                                Text("Surges")
+                                    .font(.system(size: 11))
                                     .foregroundColor(.subtleText)
                             }
-                            Spacer()
-                            Image(systemName: "trophy.fill")
-                                .font(.system(size: 36))
-                                .foregroundColor(.neonGold)
-                        }
-                        .padding()
-                        .background(Color.cardBackground)
-                        .cornerRadius(16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(
-                                    LinearGradient(colors: [.neonCyan, .neonBlue, .neonPurple, .neonMagenta, .neonOrange, .neonGold], startPoint: .topLeading, endPoint: .bottomTrailing),
-                                    lineWidth: 1
-                                )
-                                .opacity(0.4)
-                        )
-                        .shadow(color: Color.neonPurple.opacity(0.12), radius: 12)
-                        .padding(.horizontal)
-
-                        // MARK: - Surge Balance + Vault Button
-                        shardBalanceCard
-
-                        // MARK: - Vault Shop Link
-                        NavigationLink(destination: VaultShopView()) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "storefront.fill")
-                                    .font(.system(size: 18))
-                                    .foregroundColor(.neonGold)
-                                Text("Vault Shop")
-                                    .font(Typography.headline)
-                                    .foregroundColor(.neonGold)
-                                Spacer()
-                                Text("Spend Surges")
-                                    .font(Typography.caption)
-                                    .foregroundColor(.subtleText)
-                                Image(systemName: "chevron.right")
-                                    .font(Typography.caption)
-                                    .foregroundColor(.subtleText)
-                            }
-                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .aspectRatio(1, contentMode: .fit)
                             .background(Color.cardBackground)
                             .cornerRadius(16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(
-                                        LinearGradient(colors: [.neonGold, .neonOrange], startPoint: .topLeading, endPoint: .bottomTrailing),
-                                        lineWidth: 1
-                                    )
-                                    .opacity(0.5)
-                            )
-                            .shadow(color: Color.neonGold.opacity(0.12), radius: 12)
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.neonGold.opacity(0.3), lineWidth: 1))
+
+                            // Vault Shop square
+                            NavigationLink(destination: VaultShopView()) {
+                                VStack(spacing: 6) {
+                                    Image(systemName: "storefront.fill")
+                                        .font(.system(size: 28))
+                                        .foregroundColor(.neonCyan)
+                                        .shadow(color: .neonCyan.opacity(0.4), radius: 6)
+                                    Text("Vault")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.appText)
+                                    Text("Shop")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.subtleText)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .aspectRatio(1, contentMode: .fit)
+                                .background(Color.cardBackground)
+                                .cornerRadius(16)
+                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.neonCyan.opacity(0.3), lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(PlainButtonStyle())
                         .padding(.horizontal)
 
-                        // MARK: - Badge Vault Preview
-                        badgeVaultPreview
+                        // MARK: - Badge Vault (underneath)
+                        NavigationLink(destination: allBadgesView) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "shield.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(.neonPurple)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("My Collection")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.appText)
+                                    Text("\(unlockedKeys.count) / \(allBadgesFlat.count) badges earned")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.subtleText)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.subtleText)
+                            }
+                            .padding(14)
+                            .background(Color.cardBackground)
+                            .cornerRadius(14)
+                            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.neonPurple.opacity(0.25), lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+
+                        // MARK: - Recent Badges (horizontal scroll)
+                        if !recentUnlockedBadges.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Recent Badges")
+                                    .font(Typography.headline)
+                                    .foregroundColor(.appText)
+                                    .padding(.horizontal)
+
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(recentUnlockedBadges.prefix(8), id: \.key) { badge in
+                                            Button { selectedBadge = badge } label: {
+                                                VStack(spacing: 3) {
+                                                    BadgeEmblemView(badge: badge, isUnlocked: true, size: 44)
+                                                    Text(badge.title)
+                                                        .font(.system(size: 8))
+                                                        .foregroundColor(.subtleText)
+                                                        .lineLimit(1)
+                                                        .frame(width: 50)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+                        }
 
                         // MARK: - Achievement Tracks
                         achievementTracksSection
 
-                        // MARK: - Category Sections
-                        badgeSection(
-                            icon: "flame.fill",
-                            title: "Streak Badges",
-                            color: .neonOrange,
-                            badges: streakBadges,
-                            isExpanded: $streaksExpanded
-                        )
-
-                        badgeSection(
-                            icon: "clock.fill",
-                            title: "Time Milestones",
-                            color: .neonCyan,
-                            badges: timeBadges,
-                            isExpanded: $timeExpanded
-                        )
-
-                        badgeSection(
-                            icon: "heart.fill",
-                            title: "Health Badges",
-                            color: .neonGreen,
-                            badges: healthBadges,
-                            isExpanded: $healthExpanded
-                        )
-
-                        badgeSection(
-                            icon: "book.fill",
-                            title: "Journal Badges",
-                            color: .neonBlue,
-                            badges: journalBadges,
-                            isExpanded: $journalExpanded
-                        )
+                        // MARK: - Badge Categories
+                        badgeSection(icon: "flame.fill", title: "Streak Badges", color: .neonOrange, badges: streakBadges, isExpanded: $streaksExpanded)
+                        badgeSection(icon: "clock.fill", title: "Time Reclaimed", color: .neonCyan, badges: timeBadges, isExpanded: $timeExpanded)
+                        badgeSection(icon: "heart.fill", title: "Health Badges", color: .neonGreen, badges: healthBadges, isExpanded: $healthExpanded)
+                        badgeSection(icon: "book.fill", title: "Journal Badges", color: .neonBlue, badges: journalBadges, isExpanded: $journalExpanded)
 
                         if !filteredProgramBadges.isEmpty {
-                            badgeSection(
-                                icon: "star.fill",
-                                title: "Program Badges",
-                                color: .neonPurple,
-                                badges: filteredProgramBadges,
-                                isExpanded: $programExpanded
-                            )
+                            badgeSection(icon: "star.fill", title: "Program Badges", color: .neonPurple, badges: filteredProgramBadges, isExpanded: $programExpanded)
                         }
-
-                        // "Other Achievements" section removed
                     }
                     .padding(.vertical)
                 }
@@ -425,6 +422,60 @@ struct AchievementsView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \CDCosmeticUnlock.unlockedAt, ascending: false)]
     ) private var cosmeticUnlocks: FetchedResults<CDCosmeticUnlock>
 
+    private func vaultItemName(for id: String) -> String {
+        let map: [String: String] = [
+            "pet_dog": "Pup", "pet_cat": "Kitten", "pet_hamster": "Nibbles", "pet_owl": "Owlet",
+            "celebration_rainbow_burst": "Rainbow Burst", "celebration_golden_shower": "Golden Shower",
+            "celebration_neon_rain": "Neon Rain", "celebration_cosmic_sparkle": "Cosmic Sparkle",
+            "theme_midnight": "Midnight", "theme_aurora": "Neon Jungle",
+            "theme_sunset": "Ultraviolet", "theme_ocean": "Ocean",
+            "powerup_streak_shield": "Streak Shield", "powerup_daily_boost": "Daily Surge Boost",
+            "powerup_badge_reveal": "Badge Reveal", "powerup_motivation_pack": "Motivation Pack",
+            "companion_hat": "Tiny Hat", "companion_glasses": "Cool Glasses",
+            "companion_crown": "Royal Crown", "companion_bowtie": "Bowtie",
+        ]
+        return map[id] ?? id
+    }
+
+    @ViewBuilder
+    private func vaultItemPreview(for id: String) -> some View {
+        switch id {
+        case "pet_dog": DogPetView(size: 44)
+        case "pet_cat": CatPetView(size: 44)
+        case "pet_hamster": HamsterPetView(size: 44)
+        case "pet_owl": OwlPetView(size: 44)
+        default:
+            // For non-pet items, show icon with color
+            let config = vaultItemIcon(for: id)
+            ZStack {
+                Circle().fill(config.color.opacity(0.15)).frame(width: 40, height: 40)
+                Image(systemName: config.icon).font(.system(size: 18)).foregroundColor(config.color)
+            }
+        }
+    }
+
+    private func vaultItemIcon(for id: String) -> (icon: String, color: Color) {
+        switch id {
+        case "celebration_rainbow_burst": return ("party.popper.fill", .neonMagenta)
+        case "celebration_golden_shower": return ("sparkles", .neonGold)
+        case "celebration_neon_rain": return ("cloud.rain.fill", .neonCyan)
+        case "celebration_cosmic_sparkle": return ("star.fill", .neonPurple)
+        case "theme_midnight": return ("moon.stars.fill", .white)
+        case "theme_aurora": return ("leaf.fill", .neonGreen)
+        case "theme_sunset": return ("bolt.fill", .neonPurple)
+        case "theme_ocean": return ("water.waves", .neonBlue)
+        case "powerup_streak_shield": return ("shield.checkered", .neonGreen)
+        case "powerup_daily_boost": return ("bolt.circle.fill", .neonGold)
+        case "powerup_badge_reveal": return ("eye.circle.fill", .neonCyan)
+        case "powerup_motivation_pack": return ("quote.bubble.fill", .neonPurple)
+        case "companion_hat": return ("hat.widebrim.fill", .neonGold)
+        case "companion_glasses": return ("eyeglasses", .neonCyan)
+        case "companion_crown": return ("crown.fill", .neonGold)
+        case "companion_bowtie": return ("personalhotspot", .neonMagenta)
+        default: return ("checkmark.seal.fill", .neonGold)
+        }
+    }
+
     private var purchasedItemNames: [String] {
         let idToName: [String: String] = [
             "pet_dog": "Pup", "pet_cat": "Kitten", "pet_hamster": "Nibbles", "pet_owl": "Owlet",
@@ -432,10 +483,10 @@ struct AchievementsView: View {
             "celebration_neon_rain": "Neon Rain", "celebration_cosmic_sparkle": "Cosmic Sparkle",
             "theme_midnight": "Midnight", "theme_aurora": "Neon Jungle",
             "theme_sunset": "Ultraviolet", "theme_ocean": "Ocean",
-            "powerup_streak_shield": "Streak Shield", "powerup_journal_prompts": "Journal Prompts",
-            "powerup_weekly_insights": "Weekly Insights", "powerup_custom_milestones": "Custom Milestones",
-            "companion_hat": "Tiny Hat", "companion_cape": "Hero Cape",
-            "companion_crown": "Royal Crown", "companion_wings": "Angel Wings",
+            "powerup_streak_shield": "Streak Shield", "powerup_daily_boost": "Daily Surge Boost",
+            "powerup_badge_reveal": "Badge Reveal", "powerup_motivation_pack": "Motivation Pack",
+            "companion_hat": "Tiny Hat", "companion_glasses": "Cool Glasses",
+            "companion_crown": "Royal Crown", "companion_bowtie": "Bowtie",
         ]
         return cosmeticUnlocks.compactMap { idToName[$0.cosmeticId] }
     }
@@ -489,19 +540,18 @@ struct AchievementsView: View {
                                 .padding(.horizontal)
 
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 10)], spacing: 12) {
-                                ForEach(purchasedItemNames, id: \.self) { name in
+                                ForEach(cosmeticUnlocks, id: \.id) { unlock in
                                     VStack(spacing: 4) {
-                                        Image(systemName: "checkmark.seal.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.neonGold)
-                                        Text(name)
-                                            .font(.system(size: 10))
+                                        vaultItemPreview(for: unlock.cosmeticId)
+                                            .frame(width: 50, height: 50)
+                                        Text(vaultItemName(for: unlock.cosmeticId))
+                                            .font(.system(size: 9))
                                             .foregroundColor(.subtleText)
                                             .lineLimit(1)
                                     }
                                     .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 8)
-                                    .background(Color.neonGold.opacity(0.06))
+                                    .padding(.vertical, 6)
+                                    .background(Color.neonGold.opacity(0.04))
                                     .cornerRadius(10)
                                 }
                             }

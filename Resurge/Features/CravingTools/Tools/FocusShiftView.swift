@@ -21,7 +21,7 @@ struct FocusShiftView: View {
 
     private let roundTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
-    private let totalRounds = 10
+    private let totalRounds = 20
 
     private let triggerIcons = ["smoke.fill", "wineglass.fill", "dice.fill", "cart.fill", "gamecontroller.fill", "iphone"]
     private let neutralIcons = ["leaf.fill", "heart.fill", "star.fill", "sun.max.fill", "cloud.fill", "drop.fill", "flame.fill", "bolt.fill"]

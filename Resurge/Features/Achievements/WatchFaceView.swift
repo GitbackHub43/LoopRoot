@@ -10,16 +10,16 @@ struct WatchFaceView: View {
 
     private var tier: Int {
         switch requiredDays {
-        case 1: return 0       // Basic digital
-        case 3: return 1       // Simple round
-        case 7: return 2       // Sport watch
-        case 14: return 3      // Dress watch
-        case 30: return 4      // Chronograph
-        case 60: return 5      // Diver's watch
-        case 90: return 6      // Premium
-        case 180: return 7     // Luxury
-        case 270: return 8     // Grand complication
-        case 365: return 9     // Ultimate — Annual Legend
+        case 5: return 0       // Basic digital — 5h
+        case 15: return 1      // Simple round — 15h
+        case 30: return 2      // Sport watch — 30h
+        case 60: return 3      // Dress watch — 60h
+        case 100: return 4     // Chronograph — 100h
+        case 200: return 5     // Diver's watch — 200h
+        case 350: return 6     // Premium — 350h
+        case 500: return 7     // Luxury — 500h
+        case 750: return 8     // Grand complication — 750h
+        case 1000: return 9    // Ultimate — Timeless Legend 1,000h
         default: return 2
         }
     }

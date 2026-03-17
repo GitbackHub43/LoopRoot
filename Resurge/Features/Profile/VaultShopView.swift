@@ -24,9 +24,9 @@ private enum VaultShopData {
 
     static let powerUps: [VaultItem] = [
         VaultItem(id: "powerup_streak_shield", name: "Streak Shield", description: "Protects your streak once if you miss a day. One-time use — buy more as needed", icon: "shield.checkered", cost: 150, category: "Power-Ups"),
-        VaultItem(id: "powerup_journal_prompts", name: "Journal Prompts Pack", description: "Unlock 50+ guided reflection prompts for deeper self-discovery", icon: "text.book.closed.fill", cost: 200, category: "Power-Ups"),
-        VaultItem(id: "powerup_weekly_insights", name: "Weekly Insight Report", description: "Unlock detailed weekly analytics — mood trends, craving patterns, and progress charts", icon: "chart.line.uptrend.xyaxis", cost: 300, category: "Power-Ups"),
-        VaultItem(id: "powerup_custom_milestones", name: "Custom Milestone Messages", description: "Write your own motivational messages that appear when you hit streak milestones", icon: "text.bubble.fill", cost: 250, category: "Power-Ups")
+        VaultItem(id: "powerup_daily_boost", name: "Daily Surge Boost", description: "Double your Surges for one day — earn 30 instead of 15. One-time use", icon: "bolt.circle.fill", cost: 200, category: "Power-Ups"),
+        VaultItem(id: "powerup_badge_reveal", name: "Badge Reveal", description: "See exactly how close you are to your next badge unlock with a progress bar", icon: "eye.circle.fill", cost: 100, category: "Power-Ups"),
+        VaultItem(id: "powerup_motivation_pack", name: "Motivation Pack", description: "Unlock 30 exclusive motivational quotes from real recovery stories", icon: "quote.bubble.fill", cost: 250, category: "Power-Ups")
     ]
 
     static let appThemes: [VaultItem] = [
@@ -44,10 +44,10 @@ private enum VaultShopData {
     ]
 
     static let companionAccessories: [VaultItem] = [
-        VaultItem(id: "companion_hat", name: "Tiny Hat", description: "A cute little hat for your companion", icon: "hat.widebrim.fill", cost: 150, category: "Accessories"),
-        VaultItem(id: "companion_cape", name: "Hero Cape", description: "A flowing superhero cape for your companion", icon: "flag.fill", cost: 200, category: "Accessories"),
+        VaultItem(id: "companion_hat", name: "Tiny Hat", description: "A cute top hat for your companion", icon: "hat.widebrim.fill", cost: 150, category: "Accessories"),
+        VaultItem(id: "companion_glasses", name: "Cool Glasses", description: "Stylish sunglasses for your companion", icon: "eyeglasses", cost: 200, category: "Accessories"),
         VaultItem(id: "companion_crown", name: "Royal Crown", description: "A golden crown fit for a recovery champion", icon: "crown.fill", cost: 300, category: "Accessories"),
-        VaultItem(id: "companion_wings", name: "Angel Wings", description: "Beautiful feathered wings for your companion", icon: "bird.fill", cost: 400, category: "Accessories")
+        VaultItem(id: "companion_bowtie", name: "Bowtie", description: "A dapper little bowtie for your companion", icon: "personalhotspot", cost: 250, category: "Accessories")
     ]
 }
 
@@ -258,6 +258,8 @@ private struct VaultItemCard: View {
     let canAfford: Bool
     let onBuy: () -> Void
     @AppStorage("selectedTheme") private var selectedTheme: String = "default"
+    @AppStorage("activePet") private var activePet: String = ""
+    @AppStorage("equippedAccessories") private var equippedAccessories: String = ""
 
     var body: some View {
         HStack(spacing: 12) {
@@ -293,9 +295,9 @@ private struct VaultItemCard: View {
                             .cornerRadius(12)
                     }
                 } else if item.id.hasPrefix("pet_") {
-                    let isActive = UserDefaults.standard.string(forKey: "activePet") == item.id
+                    let isActive = activePet == item.id
                     Button {
-                        UserDefaults.standard.set(item.id, forKey: "activePet")
+                        activePet = item.id
                     } label: {
                         Text(isActive ? "Active" : "Select")
                             .font(.subheadline.weight(.bold))
@@ -306,7 +308,6 @@ private struct VaultItemCard: View {
                             .cornerRadius(12)
                     }
                 } else if item.id.hasPrefix("companion_") {
-                    let equippedAccessories = UserDefaults.standard.string(forKey: "equippedAccessories") ?? ""
                     let isEquipped = equippedAccessories.contains(item.id)
                     Button {
                         var accessories = Set(equippedAccessories.components(separatedBy: ",").filter { !$0.isEmpty })
@@ -315,7 +316,7 @@ private struct VaultItemCard: View {
                         } else {
                             accessories.insert(item.id)
                         }
-                        UserDefaults.standard.set(accessories.sorted().joined(separator: ","), forKey: "equippedAccessories")
+                        equippedAccessories = accessories.sorted().joined(separator: ",")
                     } label: {
                         Text(isEquipped ? "Remove" : "Equip")
                             .font(.subheadline.weight(.bold))
@@ -407,14 +408,14 @@ private struct VaultItemCard: View {
         case "theme_aurora": ThemePreview(colors: [Color(hex: "021A0A"), Color(hex: "00E676"), Color(hex: "00BFA5"), Color(hex: "39FF14")])
         case "theme_sunset": ThemePreview(colors: [Color(hex: "0E0520"), Color(hex: "E040FB"), Color(hex: "AA00FF"), Color(hex: "FF4081")])
         case "theme_ocean": ThemePreview(colors: [Color(hex: "001428"), Color(hex: "0A3050"), Color(hex: "1A4570"), Color(hex: "2196F3")])
-        case "pet_dog": DogPetView(size: 55).frame(width: 65, height: 65)
-        case "pet_cat": CatPetView(size: 55).frame(width: 65, height: 65)
-        case "pet_hamster": HamsterPetView(size: 55).frame(width: 65, height: 65)
-        case "pet_owl": OwlPetView(size: 55).frame(width: 65, height: 65)
+        case "pet_dog": DogPetView(size: 50).frame(width: 65, height: 65).clipped()
+        case "pet_cat": CatPetView(size: 50).frame(width: 65, height: 65).clipped()
+        case "pet_hamster": HamsterPetView(size: 50).frame(width: 65, height: 65).clipped()
+        case "pet_owl": OwlPetView(size: 50).frame(width: 65, height: 65).clipped()
         case "companion_hat": CompanionPreview(emoji: "🎩", color: .neonGold)
-        case "companion_cape": CapePreview()
+        case "companion_glasses": CompanionPreview(emoji: "🕶️", color: .neonCyan)
         case "companion_crown": CompanionPreview(emoji: "👑", color: .neonGold)
-        case "companion_wings": WingsPreview()
+        case "companion_bowtie": CompanionPreview(emoji: "🎀", color: .neonMagenta)
         default:
             ZStack {
                 Circle().fill(Color(hex: "1A1A2E")).frame(width: 60, height: 60)
@@ -649,106 +650,7 @@ private struct CompanionPreview: View {
     }
 }
 
-// Companion Cape Preview — superhero cape flowing in the wind
-private struct CapePreview: View {
-    @State private var wave: CGFloat = 0
-    var body: some View {
-        ZStack {
-            Circle().fill(Color.neonMagenta.opacity(0.1)).frame(width: 65, height: 65)
-            // Superhero cape — wide shoulders, narrows at bottom, flowing curves
-            Path { p in
-                // Left shoulder
-                p.move(to: CGPoint(x: 15, y: 12))
-                // Collar
-                p.addLine(to: CGPoint(x: 35, y: 8))
-                p.addLine(to: CGPoint(x: 40, y: 5))
-                p.addLine(to: CGPoint(x: 45, y: 8))
-                // Right shoulder
-                p.addLine(to: CGPoint(x: 65, y: 12))
-                // Right side flowing down
-                p.addQuadCurve(to: CGPoint(x: 58, y: 60), control: CGPoint(x: 68, y: 35))
-                // Bottom wave
-                p.addQuadCurve(to: CGPoint(x: 48, y: 55), control: CGPoint(x: 54, y: 62))
-                p.addQuadCurve(to: CGPoint(x: 40, y: 58), control: CGPoint(x: 44, y: 52))
-                p.addQuadCurve(to: CGPoint(x: 32, y: 55), control: CGPoint(x: 36, y: 62))
-                p.addQuadCurve(to: CGPoint(x: 22, y: 60), control: CGPoint(x: 26, y: 52))
-                // Left side flowing up
-                p.addQuadCurve(to: CGPoint(x: 15, y: 12), control: CGPoint(x: 12, y: 35))
-            }
-            .fill(LinearGradient(colors: [Color(hex: "DC143C"), .neonMagenta, Color(hex: "8B0000")], startPoint: .top, endPoint: .bottom))
-            .frame(width: 80, height: 65)
-            .offset(y: wave)
-            .shadow(color: .neonMagenta.opacity(0.6), radius: 8)
-
-            // Gold clasp at top
-            Circle()
-                .fill(Color.neonGold)
-                .frame(width: 8, height: 8)
-                .offset(y: -22 + wave)
-                .shadow(color: .neonGold.opacity(0.6), radius: 3)
-        }
-        .frame(width: 80, height: 80)
-        .onAppear { withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) { wave = -3 } }
-    }
-}
-
-// Companion Wings Preview — real feathered angel wings spread wide
-private struct WingsPreview: View {
-    @State private var flap: CGFloat = 0
-    var body: some View {
-        ZStack {
-            Circle().fill(Color.neonCyan.opacity(0.1)).frame(width: 65, height: 65)
-            // Left wing — multiple feather layers
-            ZStack {
-                // Outer feathers
-                Path { p in
-                    p.move(to: CGPoint(x: 38, y: 30))
-                    p.addQuadCurve(to: CGPoint(x: 5, y: 15), control: CGPoint(x: 20, y: 10))
-                    p.addQuadCurve(to: CGPoint(x: 8, y: 35), control: CGPoint(x: 2, y: 28))
-                    p.addQuadCurve(to: CGPoint(x: 38, y: 42), control: CGPoint(x: 20, y: 40))
-                    p.closeSubpath()
-                }
-                .fill(LinearGradient(colors: [.white, Color(hex: "E0F7FA"), .neonCyan], startPoint: .top, endPoint: .bottom))
-
-                // Inner feathers
-                Path { p in
-                    p.move(to: CGPoint(x: 38, y: 32))
-                    p.addQuadCurve(to: CGPoint(x: 12, y: 20), control: CGPoint(x: 25, y: 18))
-                    p.addQuadCurve(to: CGPoint(x: 15, y: 36), control: CGPoint(x: 10, y: 30))
-                    p.addQuadCurve(to: CGPoint(x: 38, y: 40), control: CGPoint(x: 25, y: 38))
-                    p.closeSubpath()
-                }
-                .fill(Color.white.opacity(0.5))
-            }
-            .rotationEffect(.degrees(Double(flap) * 8.0), anchor: .trailing)
-
-            // Right wing — mirror of left
-            ZStack {
-                Path { p in
-                    p.move(to: CGPoint(x: 42, y: 30))
-                    p.addQuadCurve(to: CGPoint(x: 75, y: 15), control: CGPoint(x: 60, y: 10))
-                    p.addQuadCurve(to: CGPoint(x: 72, y: 35), control: CGPoint(x: 78, y: 28))
-                    p.addQuadCurve(to: CGPoint(x: 42, y: 42), control: CGPoint(x: 60, y: 40))
-                    p.closeSubpath()
-                }
-                .fill(LinearGradient(colors: [.white, Color(hex: "E0F7FA"), .neonCyan], startPoint: .top, endPoint: .bottom))
-
-                Path { p in
-                    p.move(to: CGPoint(x: 42, y: 32))
-                    p.addQuadCurve(to: CGPoint(x: 68, y: 20), control: CGPoint(x: 55, y: 18))
-                    p.addQuadCurve(to: CGPoint(x: 65, y: 36), control: CGPoint(x: 70, y: 30))
-                    p.addQuadCurve(to: CGPoint(x: 42, y: 40), control: CGPoint(x: 55, y: 38))
-                    p.closeSubpath()
-                }
-                .fill(Color.white.opacity(0.5))
-            }
-            .rotationEffect(.degrees(Double(-flap) * 8.0), anchor: .leading)
-        }
-        .frame(width: 80, height: 80)
-        .shadow(color: .neonCyan.opacity(0.5), radius: 8)
-        .onAppear { withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) { flap = 1 } }
-    }
-}
+// Cape and Wings previews removed — replaced with Glasses and Bowtie (using emoji previews)
 
 // MARK: - Preview
 

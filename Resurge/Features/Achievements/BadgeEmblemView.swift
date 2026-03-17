@@ -69,17 +69,17 @@ struct BadgeEmblemView: View {
     /// Longer milestones get bigger clocks.
     private var clockScale: CGFloat {
         guard badge.category == .time else { return 1.0 }
-        switch badge.requiredDays {
-        case 1: return 0.4
-        case 3: return 0.5
-        case 7: return 0.55
-        case 14: return 0.6
-        case 30: return 0.65
-        case 60: return 0.7
-        case 90: return 0.8
-        case 180: return 0.85
-        case 270: return 0.9
-        case 365: return 1.0
+        switch badge.requiredDays {  // hours
+        case 5: return 0.4
+        case 15: return 0.5
+        case 30: return 0.55
+        case 60: return 0.6
+        case 100: return 0.65
+        case 200: return 0.7
+        case 350: return 0.8
+        case 500: return 0.85
+        case 750: return 0.9
+        case 1000: return 1.0
         default: return 0.7
         }
     }
@@ -87,17 +87,17 @@ struct BadgeEmblemView: View {
     /// Time-specific gradient colors — every single milestone has a unique vibrant color.
     private var timeGradientColors: [Color] {
         guard badge.category == .time else { return gradientColors }
-        switch badge.requiredDays {
-        case 1: return [Color(hex: "00E5FF"), Color(hex: "00B8D4")]      // Bright cyan
-        case 3: return [Color(hex: "39FF14"), Color(hex: "00E676")]      // Neon green
-        case 7: return [Color(hex: "2979FF"), Color(hex: "448AFF")]      // Vivid blue
-        case 14: return [Color(hex: "FF6D00"), Color(hex: "FF9100")]     // Bright orange
-        case 30: return [Color(hex: "D500F9"), Color(hex: "AA00FF")]     // Electric purple
-        case 60: return [Color(hex: "FF1744"), Color(hex: "F50057")]     // Hot red-pink
-        case 90: return [Color(hex: "00BFA5"), Color(hex: "1DE9B6")]     // Emerald teal
-        case 180: return [Color(hex: "FF4081"), Color(hex: "F50057")]    // Hot magenta-pink
-        case 270: return [Color(hex: "E040FB"), Color(hex: "CE93D8")]    // Vivid violet
-        case 365: return [Color(hex: "FFD700"), Color(hex: "FFFFFF"), Color(hex: "FFD700")]  // Golden legend
+        switch badge.requiredDays {  // hours
+        case 5: return [Color(hex: "00E5FF"), Color(hex: "00B8D4")]       // Bright cyan
+        case 15: return [Color(hex: "39FF14"), Color(hex: "00E676")]      // Neon green
+        case 30: return [Color(hex: "2979FF"), Color(hex: "448AFF")]      // Vivid blue
+        case 60: return [Color(hex: "FF6D00"), Color(hex: "FF9100")]      // Bright orange
+        case 100: return [Color(hex: "D500F9"), Color(hex: "AA00FF")]     // Electric purple
+        case 200: return [Color(hex: "FF1744"), Color(hex: "F50057")]     // Hot red-pink
+        case 350: return [Color(hex: "00BFA5"), Color(hex: "1DE9B6")]     // Emerald teal
+        case 500: return [Color(hex: "FF4081"), Color(hex: "F50057")]     // Hot magenta-pink
+        case 750: return [Color(hex: "E040FB"), Color(hex: "CE93D8")]     // Vivid violet
+        case 1000: return [Color(hex: "FFD700"), Color(hex: "FFFFFF"), Color(hex: "FFD700")]  // Golden legend
         default: return [.neonCyan, .neonBlue]
         }
     }
@@ -105,17 +105,17 @@ struct BadgeEmblemView: View {
     /// Glow color and radius — each milestone gets its own glow matching its gradient.
     private var timeGlowConfig: (color: Color, radius: CGFloat) {
         guard badge.category == .time else { return (badgeColor, 12) }
-        switch badge.requiredDays {
-        case 1: return (Color(hex: "00E5FF").opacity(0.6), 8)
-        case 3: return (Color(hex: "39FF14").opacity(0.6), 8)
-        case 7: return (Color(hex: "2979FF").opacity(0.6), 8)
-        case 14: return (Color(hex: "FF6D00").opacity(0.6), 10)
-        case 30: return (Color(hex: "D500F9").opacity(0.7), 10)
-        case 60: return (Color(hex: "FF1744").opacity(0.7), 12)
-        case 90: return (Color(hex: "00BFA5").opacity(0.7), 12)
-        case 180: return (Color(hex: "FF4081").opacity(0.8), 14)
-        case 270: return (Color(hex: "E040FB").opacity(0.8), 14)
-        case 365: return (Color(hex: "FFD700").opacity(0.95), 20)
+        switch badge.requiredDays {  // hours
+        case 5: return (Color(hex: "00E5FF").opacity(0.6), 8)
+        case 15: return (Color(hex: "39FF14").opacity(0.6), 8)
+        case 30: return (Color(hex: "2979FF").opacity(0.6), 8)
+        case 60: return (Color(hex: "FF6D00").opacity(0.6), 10)
+        case 100: return (Color(hex: "D500F9").opacity(0.7), 10)
+        case 200: return (Color(hex: "FF1744").opacity(0.7), 12)
+        case 350: return (Color(hex: "00BFA5").opacity(0.7), 12)
+        case 500: return (Color(hex: "FF4081").opacity(0.8), 14)
+        case 750: return (Color(hex: "E040FB").opacity(0.8), 14)
+        case 1000: return (Color(hex: "FFD700").opacity(0.95), 20)
         default: return (.neonCyan.opacity(0.5), 8)
         }
     }

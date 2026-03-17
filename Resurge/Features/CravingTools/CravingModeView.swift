@@ -4,6 +4,7 @@ import CoreData
 struct CravingModeView: View {
     @EnvironmentObject var environment: AppEnvironment
     @Environment(\.presentationMode) var presentationMode
+    var preSelectedHabit: CDHabit? = nil
 
     // MARK: - State
 
@@ -661,7 +662,7 @@ struct CravingModeView: View {
     }
 
     private func saveCravingEntry() {
-        guard let habit = habits.first else { return }
+        guard let habit = preSelectedHabit ?? habits.first else { return }
         let context = environment.viewContext
         CDCravingEntry.create(
             in: context,

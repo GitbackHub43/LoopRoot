@@ -21,16 +21,15 @@ struct HomeView: View {
     @State private var selectedHabitIndex: Int = 0
     @State private var trophyScale: CGFloat = 0.5
     @State private var refreshTrigger: UUID = UUID()
+    @State private var showGoalComplete = false
     // MARK: - Date Helpers
 
     private var todayString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
+        DebugDate.todayString
     }
 
     private var startOfToday: Date {
-        Calendar.current.startOfDay(for: Date())
+        DebugDate.startOfToday
     }
 
     // MARK: - Computed Properties
@@ -217,10 +216,23 @@ struct HomeView: View {
                 .padding(.vertical, AppStyle.spacing)
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle("Today")
+            .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    ActivePetView()
+                    HStack(spacing: 6) {
+                        ActivePetView()
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Today")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.appText)
+                            Text({
+                                let f = DateFormatter(); f.dateFormat = "EEEE, MMM d"
+                                return f.string(from: DebugDate.now)
+                            }())
+                                .font(.system(size: 11))
+                                .foregroundColor(.subtleText)
+                        }
+                    }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if let habit = selectedHabit {
@@ -259,9 +271,18 @@ struct HomeView: View {
                 onUnlock: { showPremiumGate = false },
                 onDismiss: { showPremiumGate = false }
             )
+            .sheet(isPresented: $showGoalComplete) {
+                if let habit = selectedHabit {
+                    GoalCompleteView(habit: habit)
+                        .environment(\.managedObjectContext, viewContext)
+                }
+            }
         }
         .navigationViewStyle(.stack)
-        .onAppear { refreshTrigger = UUID() }
+        .onAppear {
+            refreshTrigger = UUID()
+            checkGoalCompletion()
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             refreshTrigger = UUID()
         }
@@ -397,7 +418,7 @@ struct HomeView: View {
                         HStack(spacing: 2) {
                             Text("\u{1F525}")
                                 .font(Typography.caption)
-                            Text("\(habit.currentStreak) streak")
+                            Text("\(habit.currentStreak)d streak")
                                 .font(Typography.body)
                                 .foregroundColor(.subtleText)
                         }
@@ -413,7 +434,7 @@ struct HomeView: View {
     // MARK: - [2] BIG CRAVING PROTOCOL BUTTON
 
     private var cravingProtocolButton: some View {
-        NavigationLink(destination: CravingModeView()) {
+        NavigationLink(destination: CravingModeView(preSelectedHabit: selectedHabit)) {
             HStack(spacing: 10) {
                 Image(systemName: "exclamationmark.shield.fill")
                     .font(.title2)
@@ -593,13 +614,26 @@ struct HomeView: View {
     // MARK: - [4] Recovery Scoreboard Mini
 
     private var totalLapseCount: Int {
+        let _ = refreshTrigger
         guard let habit = selectedHabit else { return 0 }
-        let request = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
-        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+
+        // Count lapses from daily loop check-ins
+        let logRequest = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
+        logRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "habit == %@", habit),
             NSPredicate(format: "lapsedToday == YES")
         ])
-        return (try? viewContext.count(for: request)) ?? 0
+        let logLapses = (try? viewContext.count(for: logRequest)) ?? 0
+
+        // Count lapses from craving mode (gave in)
+        let cravingRequest = NSFetchRequest<CDCravingEntry>(entityName: "CDCravingEntry")
+        cravingRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "habit == %@", habit),
+            NSPredicate(format: "didResist == NO")
+        ])
+        let cravingLapses = (try? viewContext.count(for: cravingRequest)) ?? 0
+
+        return logLapses + cravingLapses
     }
 
     private var recoveryScoreboard: some View {
@@ -752,6 +786,23 @@ struct HomeView: View {
     }
 
     // MARK: - Empty State
+
+    // MARK: - Goal Completion Check
+
+    private func checkGoalCompletion() {
+        guard let habit = selectedHabit else { return }
+        let goal = Int(habit.goalDays)
+        guard goal > 0, habit.daysSoberCount >= goal else { return }
+
+        // Only show once per goal — use UserDefaults key
+        let key = "goalComplete_\(habit.id.uuidString)_\(goal)"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showGoalComplete = true
+        }
+    }
 
     private var emptyStateCard: some View {
         VStack(spacing: AppStyle.spacing) {

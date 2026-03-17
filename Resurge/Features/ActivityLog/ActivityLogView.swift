@@ -166,9 +166,10 @@ struct ActivityLogView: View {
 
     private func dateGroup(for date: Date) -> DateGroup {
         let calendar = Calendar.current
-        if calendar.isDateInToday(date) { return .today }
-        if calendar.isDateInYesterday(date) { return .yesterday }
-        let weekAgo = calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        if calendar.isDate(date, inSameDayAs: DebugDate.now) { return .today }
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: DebugDate.now),
+           calendar.isDate(date, inSameDayAs: yesterday) { return .yesterday }
+        let weekAgo = calendar.date(byAdding: .day, value: -7, to: DebugDate.now) ?? DebugDate.now
         if date >= weekAgo { return .thisWeek }
         return .earlier
     }
@@ -188,8 +189,14 @@ struct ActivityLogView: View {
 
     // MARK: - Relative Time
 
+    private func formatDate(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d, yyyy 'at' h:mm a"
+        return f.string(from: date)
+    }
+
     private func relativeTime(for date: Date) -> String {
-        let seconds = Int(Date().timeIntervalSince(date))
+        let seconds = Int(DebugDate.now.timeIntervalSince(date))
         if seconds < 60 { return "Just now" }
         let minutes = seconds / 60
         if minutes < 60 { return "\(minutes)m ago" }
@@ -415,9 +422,15 @@ struct ActivityLogView: View {
                     .foregroundColor(.neonGreen)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("If-Then Plan")
-                        .font(Typography.headline)
-                        .foregroundColor(.appText)
+                    HStack {
+                        Text("If-Then Plan")
+                            .font(Typography.headline)
+                            .foregroundColor(.appText)
+                        Spacer()
+                        Text(formatDate(plan.createdAt))
+                            .font(.system(size: 10))
+                            .foregroundColor(.subtleText.opacity(0.7))
+                    }
 
                     Text("IF \(plan.triggerType) → THEN \(plan.thenSteps ?? "")")
                         .font(Typography.caption)
@@ -505,6 +518,11 @@ struct ActivityLogView: View {
                                 .font(Typography.caption)
                                 .foregroundColor(.subtleText)
                         }
+
+                        // Date
+                        Text(formatDate(entry.createdAt))
+                            .font(.system(size: 10))
+                            .foregroundColor(.subtleText.opacity(0.7))
 
                         if let habitName = entry.habit?.name {
                             Text(habitName)
@@ -639,6 +657,10 @@ struct ActivityLogView: View {
                             .foregroundColor(.subtleText)
                     }
 
+                    Text(formatDate(entry.timestamp))
+                        .font(.system(size: 10))
+                        .foregroundColor(.subtleText.opacity(0.7))
+
                     HStack(spacing: 8) {
                         if let trigger = entry.triggerCategory, !trigger.isEmpty {
                             Text(trigger)
@@ -709,6 +731,10 @@ struct ActivityLogView: View {
                             .font(Typography.caption)
                             .foregroundColor(.subtleText)
                     }
+
+                    Text(formatDate(entry.createdAt))
+                        .font(.system(size: 10))
+                        .foregroundColor(.subtleText.opacity(0.7))
 
                     Text(entry.body)
                         .font(Typography.caption)

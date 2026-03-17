@@ -63,6 +63,7 @@ struct MilestoneBadge: Identifiable, Equatable {
     /// Each badge corresponds to an actual health improvement milestone for that habit.
     static func healthBadges(for programType: ProgramType) -> [MilestoneBadge] {
         let milestones = HealthMilestone.milestones(for: programType)
+            .filter { $0.requiredMinutes <= 525_600 } // Cap at 1 year (365 days)
         return milestones.enumerated().map { index, milestone in
             let days = max(1, milestone.requiredMinutes / 1440) // Convert minutes to days (min 1)
             return MilestoneBadge(
@@ -127,94 +128,95 @@ struct MilestoneBadge: Identifiable, Equatable {
 
     // MARK: - Time Milestones (10)
 
+    // requiredDays stores HOURS for time badges (not days)
     static let timeBadges: [MilestoneBadge] = [
         MilestoneBadge(
-            key: "1_day",
-            title: "First Step",
-            description: "Completed your first day free.",
-            iconName: "flame.fill",
-            requiredDays: 1,
+            key: "time_5h",
+            title: "First Hours",
+            description: "5 hours of life reclaimed. Every minute counts.",
+            iconName: "clock.fill",
+            requiredDays: 5,
             isPremium: false,
             category: .time
         ),
         MilestoneBadge(
-            key: "3_days",
-            title: "Building Momentum",
-            description: "Three days strong — the habit is forming.",
-            iconName: "bolt.fill",
-            requiredDays: 3,
+            key: "time_15h",
+            title: "A Full Day Back",
+            description: "15 hours reclaimed. Almost a full waking day returned to you.",
+            iconName: "clock.fill",
+            requiredDays: 15,
             isPremium: false,
             category: .time
         ),
         MilestoneBadge(
-            key: "1_week",
-            title: "One Week Warrior",
-            description: "A full week of freedom.",
-            iconName: "shield.fill",
-            requiredDays: 7,
-            isPremium: false,
-            category: .time
-        ),
-        MilestoneBadge(
-            key: "2_weeks",
-            title: "Fortnight Fighter",
-            description: "Two weeks of consistent effort.",
-            iconName: "star.fill",
-            requiredDays: 14,
-            isPremium: false,
-            category: .time
-        ),
-        MilestoneBadge(
-            key: "1_month",
-            title: "Monthly Master",
-            description: "One full month — you are rewriting your brain.",
-            iconName: "crown.fill",
+            key: "time_30h",
+            title: "Time Keeper",
+            description: "30 hours reclaimed. Over a full day of freedom.",
+            iconName: "clock.fill",
             requiredDays: 30,
             isPremium: false,
             category: .time
         ),
         MilestoneBadge(
-            key: "2_months",
-            title: "Double Down",
-            description: "Two months of dedication.",
-            iconName: "trophy.fill",
+            key: "time_60h",
+            title: "Two Days Free",
+            description: "60 hours reclaimed. Two and a half full days returned to your life.",
+            iconName: "clock.fill",
             requiredDays: 60,
             isPremium: false,
             category: .time
         ),
         MilestoneBadge(
-            key: "3_months",
-            title: "Quarter Champion",
-            description: "90 days — a new identity is taking shape.",
-            iconName: "medal.fill",
-            requiredDays: 90,
+            key: "time_100h",
+            title: "Century of Hours",
+            description: "100 hours reclaimed. Over 4 full days of living.",
+            iconName: "clock.fill",
+            requiredDays: 100,
             isPremium: false,
             category: .time
         ),
         MilestoneBadge(
-            key: "6_months",
-            title: "Half-Year Hero",
-            description: "Six months of freedom and growth.",
-            iconName: "laurel.leading",
-            requiredDays: 180,
+            key: "time_200h",
+            title: "Time Champion",
+            description: "200 hours reclaimed. Over a full week of life returned.",
+            iconName: "clock.fill",
+            requiredDays: 200,
             isPremium: false,
             category: .time
         ),
         MilestoneBadge(
-            key: "9_months",
-            title: "Nine-Month Navigator",
-            description: "Three quarters of a year — deeply rooted in your new life.",
-            iconName: "compass.drawing",
-            requiredDays: 270,
+            key: "time_350h",
+            title: "Time Warrior",
+            description: "350 hours reclaimed. Two full weeks of living reclaimed.",
+            iconName: "clock.fill",
+            requiredDays: 350,
             isPremium: true,
             category: .time
         ),
         MilestoneBadge(
-            key: "1_year",
-            title: "Annual Legend",
-            description: "One full year — you are transformed.",
-            iconName: "sparkles",
-            requiredDays: 365,
+            key: "time_500h",
+            title: "Half Thousand",
+            description: "500 hours reclaimed. Three full weeks of life you chose yourself.",
+            iconName: "clock.fill",
+            requiredDays: 500,
+            isPremium: true,
+            category: .time
+        ),
+        MilestoneBadge(
+            key: "time_750h",
+            title: "Time Master",
+            description: "750 hours reclaimed. A full month of freedom.",
+            iconName: "clock.fill",
+            requiredDays: 750,
+            isPremium: true,
+            category: .time
+        ),
+        MilestoneBadge(
+            key: "time_1000h",
+            title: "Timeless Legend",
+            description: "1,000 hours reclaimed. Over 41 days of life taken back. You are legendary.",
+            iconName: "clock.fill",
+            requiredDays: 1000,
             isPremium: true,
             category: .time
         )
@@ -462,6 +464,30 @@ struct MilestoneBadge: Identifiable, Equatable {
         // Gambling
         MilestoneBadge(key: "gambling_7d", title: "Safe Bet", description: "7 days gamble-free. The safest bet is on yourself.", iconName: "shield.fill", requiredDays: 7, isPremium: false, category: .program, programType: .gambling),
         MilestoneBadge(key: "gambling_30d", title: "Risk-Free Living", description: "30 days without gambling. Living risk-free.", iconName: "lock.fill", requiredDays: 30, isPremium: false, category: .program, programType: .gambling),
-        MilestoneBadge(key: "gambling_90d", title: "Jackpot of Life", description: "90 days gamble-free. You hit the real jackpot.", iconName: "star.fill", requiredDays: 90, isPremium: false, category: .program, programType: .gambling)
+        MilestoneBadge(key: "gambling_90d", title: "Jackpot of Life", description: "90 days gamble-free. You hit the real jackpot.", iconName: "star.fill", requiredDays: 90, isPremium: false, category: .program, programType: .gambling),
+
+        // 6-Month Badges (180 days)
+        MilestoneBadge(key: "smoking_180d", title: "Lung Reborn", description: "6 months smoke-free. Your lungs have significantly healed.", iconName: "lungs.fill", requiredDays: 180, isPremium: true, category: .program, programType: .smoking),
+        MilestoneBadge(key: "alcohol_180d", title: "Half Year Hero", description: "6 months sober. You've rewritten your story.", iconName: "medal.fill", requiredDays: 180, isPremium: true, category: .program, programType: .alcohol),
+        MilestoneBadge(key: "porn_180d", title: "Brain Rewired", description: "6 months free. Your brain has fundamentally changed.", iconName: "brain.fill", requiredDays: 180, isPremium: true, category: .program, programType: .porn),
+        MilestoneBadge(key: "phone_180d", title: "Present Living", description: "6 months of mindful phone use. You own your attention.", iconName: "person.fill.checkmark", requiredDays: 180, isPremium: true, category: .program, programType: .phone),
+        MilestoneBadge(key: "social_180d", title: "Authentic Self", description: "6 months free. You don't need a filter to be real.", iconName: "person.crop.circle.badge.checkmark", requiredDays: 180, isPremium: true, category: .program, programType: .socialMedia),
+        MilestoneBadge(key: "gaming_180d", title: "Life Player", description: "6 months free. Real life is the best game.", iconName: "globe.americas.fill", requiredDays: 180, isPremium: true, category: .program, programType: .gaming),
+        MilestoneBadge(key: "sugar_180d", title: "Naturally Sweet", description: "6 months sugar-free. Your body runs on real fuel.", iconName: "bolt.heart.fill", requiredDays: 180, isPremium: true, category: .program, programType: .sugar),
+        MilestoneBadge(key: "emotional_eating_180d", title: "Emotional Freedom", description: "6 months of feeling without feeding. True freedom.", iconName: "figure.mind.and.body", requiredDays: 180, isPremium: true, category: .program, programType: .emotionalEating),
+        MilestoneBadge(key: "shopping_180d", title: "Wealth Builder", description: "6 months impulse-free. Your savings tell the story.", iconName: "banknote.fill", requiredDays: 180, isPremium: true, category: .program, programType: .shopping),
+        MilestoneBadge(key: "gambling_180d", title: "House Breaker", description: "6 months gamble-free. You beat the house.", iconName: "crown.fill", requiredDays: 180, isPremium: true, category: .program, programType: .gambling),
+
+        // 1-Year Badges (365 days)
+        MilestoneBadge(key: "smoking_365d", title: "Smoke-Free Legend", description: "1 year smoke-free. You are living proof that change is possible.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .smoking),
+        MilestoneBadge(key: "alcohol_365d", title: "Sobriety Legend", description: "1 year sober. A full year of clarity, courage, and growth.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .alcohol),
+        MilestoneBadge(key: "porn_365d", title: "Freedom Legend", description: "1 year free. You've reclaimed your mind completely.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .porn),
+        MilestoneBadge(key: "phone_365d", title: "Digital Legend", description: "1 year of mindful phone use. Your attention is your superpower.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .phone),
+        MilestoneBadge(key: "social_365d", title: "Social Legend", description: "1 year free. You live life, not a feed.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .socialMedia),
+        MilestoneBadge(key: "gaming_365d", title: "Real Life Legend", description: "1 year free. You leveled up where it actually matters.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .gaming),
+        MilestoneBadge(key: "sugar_365d", title: "Sugar-Free Legend", description: "1 year without sugar. Your body and mind are transformed.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .sugar),
+        MilestoneBadge(key: "emotional_eating_365d", title: "Mindful Legend", description: "1 year of emotional mastery. You feel, you don't feed.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .emotionalEating),
+        MilestoneBadge(key: "shopping_365d", title: "Impulse-Free Legend", description: "1 year of intentional living. You own your choices.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .shopping),
+        MilestoneBadge(key: "gambling_365d", title: "Gamble-Free Legend", description: "1 year gamble-free. The greatest win of your life.", iconName: "star.circle.fill", requiredDays: 365, isPremium: true, category: .program, programType: .gambling)
     ]
 }

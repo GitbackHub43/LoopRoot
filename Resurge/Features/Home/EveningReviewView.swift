@@ -43,15 +43,13 @@ struct EveningReviewView: View {
     ]
 
     private var todayString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
+        DebugDate.todayString
     }
 
     private var formattedDate: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
-        return formatter.string(from: Date())
+        return formatter.string(from: existingEntry?.createdAt ?? initialEntry?.createdAt ?? DebugDate.now)
     }
 
     // MARK: - Body
@@ -440,7 +438,7 @@ struct EveningReviewView: View {
             return
         }
 
-        let today = Calendar.current.startOfDay(for: Date())
+        let today = DebugDate.startOfToday
         let request = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
         request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "habit == %@", habit),
@@ -480,7 +478,7 @@ struct EveningReviewView: View {
         } else {
             entry = CDDailyLogEntry(context: viewContext)
             entry.id = UUID()
-            entry.date = Calendar.current.startOfDay(for: Date())
+            entry.date = DebugDate.startOfToday
             entry.createdAt = Date()
             entry.habit = habit
         }
@@ -529,7 +527,7 @@ struct EveningReviewView: View {
     }
 
     private func checkDailyLoopCompletion() {
-        let today = Calendar.current.startOfDay(for: Date()) as NSDate
+        let today = DebugDate.startOfToday as NSDate
         let types = ["morning", "afternoon", "evening"]
         var completedCount = 0
         for entryType in types {
