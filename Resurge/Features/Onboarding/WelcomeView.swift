@@ -39,10 +39,8 @@ struct WelcomeView: View {
 
                     Image("WelcomeLogo")
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
                         .frame(width: 180, height: 180)
-                        .scaleEffect(1.15)
-                        .clipShape(Circle())
                         .shadow(color: .neonPurple.opacity(0.4), radius: 20)
                         .shadow(color: .neonCyan.opacity(0.3), radius: 30)
                 }
@@ -60,7 +58,7 @@ struct WelcomeView: View {
                 }
 
                 // Subtitle
-                Text("Stay in the loop. Find your root.")
+                Text("Escape the loop. Find your root.")
                     .font(Typography.headline)
                     .foregroundColor(.neonGold)
 

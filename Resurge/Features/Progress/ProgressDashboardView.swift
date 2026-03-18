@@ -181,10 +181,11 @@ struct ProgressDashboardView: View {
     // MARK: - [1] Streak + Calendar (Merged, Collapsible)
 
     private var streakCalendarSection: some View {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.firstWeekday = 1 // Force Sunday-first for consistency
         let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth)) ?? selectedMonth
         let daysInMonth = calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 30
-        let firstWeekday = calendar.component(.weekday, from: monthStart)
+        let firstWeekday = calendar.component(.weekday, from: monthStart) // 1=Sun, 2=Mon, etc.
         let leadingBlanks = firstWeekday - 1
         let logEntries = fetchLogEntries(for: monthStart)
         let today = DebugDate.startOfToday
@@ -648,8 +649,8 @@ struct ProgressDashboardView: View {
 
         if let entry = matchingEntry {
             if entry.lapsedToday {
-                // Lapse day: orange, no flame
-                return DayDisplayStatus(color: Color.orange.opacity(0.7), textColor: .white, showFlame: false)
+                // Lapse day: red with X marker
+                return DayDisplayStatus(color: Color.red.opacity(0.7), textColor: .white, showFlame: false)
             } else {
                 // Sober day: green with flame
                 return DayDisplayStatus(color: Color.green.opacity(0.7), textColor: .white, showFlame: true)

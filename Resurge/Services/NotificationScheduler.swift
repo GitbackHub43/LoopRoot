@@ -13,13 +13,19 @@ struct NotificationScheduler {
         let isPremium = UserDefaults.standard.bool(forKey: "isPremium")
         let stealthEnabled = UserDefaults.standard.bool(forKey: "stealth_notifications")
 
-        let wakeHour = UserDefaults.standard.integer(forKey: "wakeUpHour")
-        let afternoonHour = UserDefaults.standard.integer(forKey: "afternoonHour")
-        let eveningHour = UserDefaults.standard.integer(forKey: "eveningHour")
+        let morningH = UserDefaults.standard.integer(forKey: "morningLoopHour")
+        let morningM = UserDefaults.standard.integer(forKey: "morningLoopMinute")
+        let afternoonH = UserDefaults.standard.integer(forKey: "afternoonLoopHour")
+        let afternoonM = UserDefaults.standard.integer(forKey: "afternoonLoopMinute")
+        let eveningH = UserDefaults.standard.integer(forKey: "eveningLoopHour")
+        let eveningM = UserDefaults.standard.integer(forKey: "eveningLoopMinute")
 
-        let morning = wakeHour > 0 ? wakeHour : 7
-        let afternoon = afternoonHour > 0 ? afternoonHour : 15
-        let evening = eveningHour > 0 ? eveningHour : 22
+        let morning = morningH > 0 ? morningH : 7
+        let morningMin = morningM
+        let afternoon = afternoonH > 0 ? afternoonH : 15
+        let afternoonMin = afternoonM
+        let evening = eveningH > 0 ? eveningH : 22
+        let eveningMin = eveningM
 
         // Fetch habits on main thread
         let request = NSFetchRequest<CDHabit>(entityName: "CDHabit")
@@ -62,14 +68,25 @@ struct NotificationScheduler {
             center.removeAllPendingNotificationRequests()
 
             // MARK: - Daily Loop Reminders
+            // Each habit gets staggered by habitIndex * 10 seconds added to the minute
             if dailyLoopEnabled {
-                for habit in habitInfos {
+                for (habitIndex, habit) in habitInfos.enumerated() {
                     let rawName = habit.name
                     let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
+                    let stagger = habitIndex // Stagger by 1 minute per habit
+
+                    let mMin = (morningMin + stagger) % 60
+                    let mHour = morningMin + stagger >= 60 ? (morning + 1) % 24 : morning
+
+                    let aMin = (afternoonMin + stagger) % 60
+                    let aHour = afternoonMin + stagger >= 60 ? (afternoon + 1) % 24 : afternoon
+
+                    let eMin = (eveningMin + stagger) % 60
+                    let eHour = eveningMin + stagger >= 60 ? (evening + 1) % 24 : evening
 
                     scheduleDailyNotification(
                         id: "daily_morning_\(habit.id)",
-                        hour: morning, minute: 0,
+                        hour: mHour, minute: mMin,
                         title: stealthEnabled ? "Reminder" : "Morning Plan — \(habitLabel)",
                         body: stealthEnabled ? "You have a pending check-in." : "Set your intention for today.",
                         center: center
@@ -77,7 +94,7 @@ struct NotificationScheduler {
 
                     scheduleDailyNotification(
                         id: "daily_afternoon_\(habit.id)",
-                        hour: afternoon, minute: 0,
+                        hour: aHour, minute: aMin,
                         title: stealthEnabled ? "Reminder" : "Afternoon Check-In — \(habitLabel)",
                         body: stealthEnabled ? "You have a pending check-in." : "How's your day going? Quick check-in.",
                         center: center
@@ -85,7 +102,7 @@ struct NotificationScheduler {
 
                     scheduleDailyNotification(
                         id: "daily_evening_\(habit.id)",
-                        hour: evening, minute: 0,
+                        hour: eHour, minute: eMin,
                         title: stealthEnabled ? "Reminder" : "Evening Review — \(habitLabel)",
                         body: stealthEnabled ? "You have a pending check-in." : "Reflect on your day. What went well?",
                         center: center
@@ -94,6 +111,7 @@ struct NotificationScheduler {
             }
 
             // MARK: - Motivational Quote Notifications
+            // Scheduled 2 minutes after corresponding daily loop time
             if dailyQuoteEnabled {
                 for (habitIndex, habit) in habitInfos.enumerated() {
                     let programType = ProgramType(rawValue: habit.programType)
@@ -112,8 +130,9 @@ struct NotificationScheduler {
 
                             let id = "quote_h\(habitIndex)_s\(slotIndex)_d\(day)"
                             var dc = Calendar.current.dateComponents([.year, .month, .day], from: targetDate)
+                            // Stagger: 2 min after daily loop + 1 min per habit
                             dc.hour = slot.hour
-                            dc.minute = slot.minute + habitIndex // Stagger per habit
+                            dc.minute = slot.minute + 2 + habitIndex
 
                             let content = UNMutableNotificationContent()
                             content.title = stealthEnabled ? "Motivation" : "You've Got This — \(habitLabel)"
@@ -156,26 +175,78 @@ struct NotificationScheduler {
         center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger)) { error in
             if let error = error {
                 print("NotificationScheduler: Failed to schedule \(id): \(error)")
+            } else {
+                print("NotificationScheduler: Scheduled \(id) at \(hour):\(String(format: "%02d", minute))")
             }
         }
     }
 
-    // MARK: - Test Notifications
+    // MARK: - Test Notifications (fires immediately for testing)
 
-    static func fireTestNotification() {
+    static func fireTestNotifications(context: NSManagedObjectContext) {
         let center = UNUserNotificationCenter.current()
+        let stealthEnabled = UserDefaults.standard.bool(forKey: "stealth_notifications")
 
-        let loopContent = UNMutableNotificationContent()
-        loopContent.title = "Morning Plan — Quit Smoking"
-        loopContent.body = "Set your intention for today. (Test notification)"
-        loopContent.sound = .default
-        center.add(UNNotificationRequest(identifier: "test_daily_loop", content: loopContent, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)))
+        // Fetch active habits
+        let request = NSFetchRequest<CDHabit>(entityName: "CDHabit")
+        request.predicate = NSPredicate(format: "isActive == YES")
+        let habits = (try? context.fetch(request)) ?? []
 
-        let quote = QuoteBank.randomQuote()
-        let quoteContent = UNMutableNotificationContent()
-        quoteContent.title = "You've Got This — Quit Smoking"
-        quoteContent.body = quote.text
-        quoteContent.sound = .default
-        center.add(UNNotificationRequest(identifier: "test_quote", content: quoteContent, trigger: UNTimeIntervalNotificationTrigger(timeInterval: 8, repeats: false)))
+        var delay: TimeInterval = 3 // Start 3 seconds from now
+
+        // Daily loop test notifications
+        for habit in habits {
+            let rawName = habit.name
+            let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
+
+            let types = [
+                ("Morning Plan", "Set your intention for today."),
+                ("Afternoon Check-In", "How's your day going? Quick check-in."),
+                ("Evening Review", "Reflect on your day. What went well?")
+            ]
+
+            for (loopType, body) in types {
+                let content = UNMutableNotificationContent()
+                content.title = stealthEnabled ? "Reminder" : "\(loopType) — \(habitLabel)"
+                content.body = stealthEnabled ? "You have a pending check-in." : body
+                content.sound = .default
+
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+                center.add(UNNotificationRequest(identifier: "test_\(loopType)_\(habit.id.uuidString)", content: content, trigger: trigger))
+                delay += 10 // 10 sec between each
+            }
+        }
+
+        // 20 second gap before motivation quotes
+        delay += 20
+
+        // Motivational quote test notifications
+        let isPremium = UserDefaults.standard.bool(forKey: "isPremium")
+        let quoteCount = isPremium ? 5 : 1
+
+        for habit in habits {
+            let programType = ProgramType(rawValue: habit.programType)
+            let rawName = habit.name
+            let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
+
+            let quotePool = QuoteBank.allQuotes.filter { q in
+                q.programTypes == nil || (programType != nil && q.programTypes!.contains(programType!))
+            }
+
+            for i in 0..<quoteCount {
+                let quote = quotePool.isEmpty ? QuoteBank.allQuotes[0] : quotePool[i % quotePool.count]
+
+                let content = UNMutableNotificationContent()
+                content.title = stealthEnabled ? "Motivation" : "You've Got This — \(habitLabel)"
+                content.body = stealthEnabled ? "Open the app for your daily motivation." : quote.text
+                content.sound = .default
+
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
+                center.add(UNNotificationRequest(identifier: "test_quote_\(habit.id.uuidString)_\(i)", content: content, trigger: trigger))
+                delay += 10
+            }
+        }
+
+        print("NotificationScheduler: Fired \(Int(delay / 10)) test notifications over \(Int(delay)) seconds")
     }
 }

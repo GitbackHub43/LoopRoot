@@ -50,14 +50,19 @@ public class CDHabit: NSManagedObject, Identifiable {
 
     /// The current streak in days, broken by any lapse recorded in daily logs.
     public var currentStreak: Int {
-        guard let logs = dailyLogs as? Set<CDDailyLogEntry> else {
-            return daysSoberCount
-        }
-
         let calendar = Calendar.current
         let today = DebugDate.startOfToday
         let start = calendar.startOfDay(for: startDate)
         guard today >= start else { return 0 }
+
+        // If startDate was reset today (lapse happened today), streak is 0
+        if start == today {
+            return 0
+        }
+
+        guard let logs = dailyLogs as? Set<CDDailyLogEntry> else {
+            return daysSoberCount
+        }
 
         // Build a set of dates on which a lapse occurred.
         let lapseDates: Set<Date> = Set(

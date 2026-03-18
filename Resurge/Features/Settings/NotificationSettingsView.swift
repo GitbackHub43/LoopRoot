@@ -23,6 +23,17 @@ struct NotificationSettingsView: View {
     @State private var quoteTime5 = Calendar.current.date(from: DateComponents(hour: 14, minute: 0)) ?? Date()
 
     @State private var notificationPermissionDenied = false
+    @AppStorage("morningLoopHour") private var morningLoopHour = 7
+    @AppStorage("morningLoopMinute") private var morningLoopMinute = 0
+    @AppStorage("afternoonLoopHour") private var afternoonLoopHour = 15
+    @AppStorage("afternoonLoopMinute") private var afternoonLoopMinute = 0
+    @AppStorage("eveningLoopHour") private var eveningLoopHour = 23
+    @AppStorage("eveningLoopMinute") private var eveningLoopMinute = 0
+
+    @State private var morningTime: Date = Date()
+    @State private var afternoonTime: Date = Date()
+    @State private var eveningTime: Date = Date()
+
     @State private var wakeTime: Date = {
         let hour = UserDefaults.standard.integer(forKey: "wakeUpHour")
         return Calendar.current.date(from: DateComponents(hour: hour > 0 ? hour : 7, minute: 0)) ?? Date()
@@ -86,20 +97,25 @@ struct NotificationSettingsView: View {
                     .tint(.neonCyan)
 
                     if dailyLoopEnabled {
-                        DatePicker("Wake Time", selection: $wakeTime, displayedComponents: .hourAndMinute)
-                            .foregroundColor(.textPrimary)
-
-                        let wakeH = Calendar.current.component(.hour, from: wakeTime)
-                        let afternoonH = (wakeH + 8) % 24
-                        let eveningH = (wakeH + 16) % 24
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            notificationTimeRow("Morning Plan/Review", hour: wakeH, icon: "sunrise.fill", color: .neonGold)
-                            notificationTimeRow("Afternoon Check-In", hour: afternoonH, icon: "sun.max.fill", color: .neonOrange)
-                            notificationTimeRow("Evening Review/Reflection", hour: eveningH, icon: "moon.fill", color: .neonPurple)
+                        HStack(spacing: 10) {
+                            Image(systemName: "sunrise.fill").foregroundColor(.neonGold)
+                            DatePicker("Morning Plan", selection: $morningTime, displayedComponents: .hourAndMinute)
+                                .foregroundColor(.textPrimary)
                         }
 
-                        Text("Set your wake time — the other two are automatically 8 hours apart.")
+                        HStack(spacing: 10) {
+                            Image(systemName: "sun.max.fill").foregroundColor(.neonOrange)
+                            DatePicker("Afternoon Check-In", selection: $afternoonTime, displayedComponents: .hourAndMinute)
+                                .foregroundColor(.textPrimary)
+                        }
+
+                        HStack(spacing: 10) {
+                            Image(systemName: "moon.fill").foregroundColor(.neonPurple)
+                            DatePicker("Evening Review", selection: $eveningTime, displayedComponents: .hourAndMinute)
+                                .foregroundColor(.textPrimary)
+                        }
+
+                        Text("Set when you'd like each daily loop reminder.")
                             .font(Typography.caption)
                             .foregroundColor(.subtleText)
                     }
@@ -148,11 +164,15 @@ struct NotificationSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             checkNotificationPermission()
-            quoteTime1 = Calendar.current.date(from: DateComponents(hour: quoteSlot1Hour, minute: quoteSlot1Minute)) ?? Date()
-            quoteTime2 = Calendar.current.date(from: DateComponents(hour: quoteSlot2Hour, minute: quoteSlot2Minute)) ?? Date()
-            quoteTime3 = Calendar.current.date(from: DateComponents(hour: quoteSlot3Hour, minute: quoteSlot3Minute)) ?? Date()
-            quoteTime4 = Calendar.current.date(from: DateComponents(hour: quoteSlot4Hour, minute: quoteSlot4Minute)) ?? Date()
-            quoteTime5 = Calendar.current.date(from: DateComponents(hour: quoteSlot5Hour, minute: quoteSlot5Minute)) ?? Date()
+            let cal = Calendar.current
+            morningTime = cal.date(from: DateComponents(hour: morningLoopHour, minute: morningLoopMinute)) ?? Date()
+            afternoonTime = cal.date(from: DateComponents(hour: afternoonLoopHour, minute: afternoonLoopMinute)) ?? Date()
+            eveningTime = cal.date(from: DateComponents(hour: eveningLoopHour, minute: eveningLoopMinute)) ?? Date()
+            quoteTime1 = cal.date(from: DateComponents(hour: quoteSlot1Hour, minute: quoteSlot1Minute)) ?? Date()
+            quoteTime2 = cal.date(from: DateComponents(hour: quoteSlot2Hour, minute: quoteSlot2Minute)) ?? Date()
+            quoteTime3 = cal.date(from: DateComponents(hour: quoteSlot3Hour, minute: quoteSlot3Minute)) ?? Date()
+            quoteTime4 = cal.date(from: DateComponents(hour: quoteSlot4Hour, minute: quoteSlot4Minute)) ?? Date()
+            quoteTime5 = cal.date(from: DateComponents(hour: quoteSlot5Hour, minute: quoteSlot5Minute)) ?? Date()
         }
         .onChange(of: dailyQuoteEnabled) { newValue in
             if newValue {
@@ -166,12 +186,25 @@ struct NotificationSettingsView: View {
                 ensurePermissionThenScheduleDailyLoop()
             }
         }
-        .onChange(of: wakeTime) { newValue in
+        .onChange(of: morningTime) { newValue in
             let cal = Calendar.current
-            let wakeH = cal.component(.hour, from: newValue)
-            UserDefaults.standard.set(wakeH, forKey: "wakeUpHour")
-            UserDefaults.standard.set((wakeH + 8) % 24, forKey: "afternoonHour")
-            UserDefaults.standard.set((wakeH + 16) % 24, forKey: "eveningHour")
+            morningLoopHour = cal.component(.hour, from: newValue)
+            morningLoopMinute = cal.component(.minute, from: newValue)
+            UserDefaults.standard.set(morningLoopHour, forKey: "wakeUpHour")
+            NotificationScheduler.scheduleAll(context: environment.viewContext)
+        }
+        .onChange(of: afternoonTime) { newValue in
+            let cal = Calendar.current
+            afternoonLoopHour = cal.component(.hour, from: newValue)
+            afternoonLoopMinute = cal.component(.minute, from: newValue)
+            UserDefaults.standard.set(afternoonLoopHour, forKey: "afternoonHour")
+            NotificationScheduler.scheduleAll(context: environment.viewContext)
+        }
+        .onChange(of: eveningTime) { newValue in
+            let cal = Calendar.current
+            eveningLoopHour = cal.component(.hour, from: newValue)
+            eveningLoopMinute = cal.component(.minute, from: newValue)
+            UserDefaults.standard.set(eveningLoopHour, forKey: "eveningHour")
             NotificationScheduler.scheduleAll(context: environment.viewContext)
         }
         .onChange(of: quoteTime1) { newValue in

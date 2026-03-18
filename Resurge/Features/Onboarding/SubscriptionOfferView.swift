@@ -19,7 +19,7 @@ struct SubscriptionOfferView: View {
     private let premiumFeatures: [(icon: String, title: String, description: String)] = [
         ("chart.bar.xaxis", "Advanced Analytics", "Deep insights into your progress with charts and trends."),
         ("infinity", "Unlimited Habits", "Track as many habits as you need, all in one place."),
-        ("quote.bubble.fill", "4x Daily Motivation", "Personalized motivational quotes sent to your phone."),
+        ("quote.bubble.fill", "5x Daily Motivation", "Personalized motivational quotes sent to your phone."),
         ("trophy.fill", "Rewards & Collectibles", "Earn Surges, unlock collectibles, build your trophy case."),
         ("map.fill", "Coaching Plans", "Structured day-by-day plans tailored to your habit."),
         ("rosette", "Unlock All Badges", "Access every achievement badge available for you to earn throughout your journey.")
@@ -97,8 +97,8 @@ struct SubscriptionOfferView: View {
                 // Pricing cards
                 HStack(spacing: 10) {
                     pricingCard(plan: .monthly, price: "$4.99", period: "/mo", savings: nil)
-                    pricingCard(plan: .yearly, price: "$29.99", period: "/yr", savings: "Save 50%")
-                    pricingCard(plan: .lifetime, price: "$59.99", period: "once", savings: "Best Value")
+                    pricingCard(plan: .yearly, price: "$39.99", period: "/yr", savings: "Save 33%")
+                    pricingCard(plan: .lifetime, price: "$99.99", period: "once", savings: "Best Value")
                 }
                 .padding(.horizontal, AppStyle.screenPadding)
 
@@ -112,17 +112,11 @@ struct SubscriptionOfferView: View {
                                 ProgressView()
                                     .tint(.white)
                             }
-                            Text(selectedPlan == .lifetime ? "Purchase Lifetime" : "Start Free Trial")
+                            Text(selectedPlan == .lifetime ? "Purchase Lifetime" : "Subscribe Now")
                         }
                     }
                     .buttonStyle(GoldButtonStyle())
                     .disabled(isPurchasing)
-
-                    if selectedPlan != .lifetime {
-                        Text("7-day free trial, then \(selectedPlan == .monthly ? "$4.99/mo" : "$29.99/yr")")
-                            .font(Typography.caption)
-                            .foregroundColor(.textSecondary)
-                    }
 
                     Text("Cancel anytime. No commitment.")
                         .font(Typography.footnote)

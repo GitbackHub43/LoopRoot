@@ -15,6 +15,7 @@ struct EmergencyContactsView: View {
     @AppStorage("emergencyContacts") private var contactsData: String = "[]"
     @State private var contacts: [EmergencyContact] = []
     @State private var showingSaveConfirmation = false
+    @State private var editingContactIndex: Set<Int> = []
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \CDHabit.sortOrder, ascending: true)],
@@ -136,58 +137,121 @@ struct EmergencyContactsView: View {
     // MARK: - Contact Card
 
     private func contactCard(at index: Int) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Contact \(index + 1)")
-                    .font(Typography.headline)
-                    .foregroundColor(.textPrimary)
-                Spacer()
-                Button {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        contacts.remove(at: index)
-                        saveContacts()
+        let contact = index < contacts.count ? contacts[index] : EmergencyContact(name: "", phoneNumber: "")
+        let isSaved = !contact.name.isEmpty && !contact.phoneNumber.isEmpty
+
+        return Group {
+            if isSaved && !editingContactIndex.contains(index) {
+                // Display mode — looks like helpline cards
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.neonCyan)
+                        Text(contact.name)
+                            .font(Typography.headline)
+                            .foregroundColor(.textPrimary)
+                        Spacer()
+                        Button {
+                            editingContactIndex.insert(index)
+                        } label: {
+                            Image(systemName: "pencil")
+                                .font(.caption)
+                                .foregroundColor(.subtleText)
+                        }
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                contacts.remove(at: index)
+                                saveContacts()
+                            }
+                        } label: {
+                            Image(systemName: "trash.fill")
+                                .font(.caption)
+                                .foregroundColor(.neonOrange)
+                        }
                     }
-                } label: {
-                    Image(systemName: "trash.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(.neonOrange)
+
+                    HStack {
+                        Text(contact.phoneNumber)
+                            .font(Typography.body)
+                            .foregroundColor(.textSecondary)
+                        Spacer()
+                        Button {
+                            let digits = contact.phoneNumber.filter { $0.isNumber || $0 == "+" }
+                            if let url = URL(string: "tel:\(digits)") {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "phone.fill")
+                                Text("Call")
+                            }
+                            .font(Typography.caption.weight(.semibold))
+                            .foregroundColor(.neonGreen)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.neonGreen.opacity(0.1))
+                            .cornerRadius(20)
+                        }
+                    }
                 }
-            }
+                .neonCard(glow: .neonCyan)
+            } else {
+                // Edit mode
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text(isSaved ? "Edit Contact" : "New Contact")
+                            .font(Typography.headline)
+                            .foregroundColor(.textPrimary)
+                        Spacer()
+                        if isSaved {
+                            Button {
+                                editingContactIndex.remove(index)
+                            } label: {
+                                Text("Done")
+                                    .font(Typography.caption.weight(.bold))
+                                    .foregroundColor(.neonCyan)
+                            }
+                        }
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                contacts.remove(at: index)
+                                editingContactIndex.remove(index)
+                                saveContacts()
+                            }
+                        } label: {
+                            Image(systemName: "trash.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(.neonOrange)
+                        }
+                    }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Name")
-                    .font(Typography.caption)
-                    .foregroundColor(.textSecondary)
-                TextField("Contact name", text: binding(for: index, keyPath: \.name))
-                    .font(Typography.body)
-                    .foregroundColor(.textPrimary)
-                    .padding(12)
-                    .background(Color.appBackground)
-                    .cornerRadius(AppStyle.smallCornerRadius)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppStyle.smallCornerRadius)
-                            .stroke(Color.cardBorder, lineWidth: 1)
-                    )
-            }
+                    TextField("Contact name", text: binding(for: index, keyPath: \.name))
+                        .font(Typography.body)
+                        .foregroundColor(.textPrimary)
+                        .padding(12)
+                        .background(Color.appBackground)
+                        .cornerRadius(AppStyle.smallCornerRadius)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppStyle.smallCornerRadius)
+                                .stroke(Color.cardBorder, lineWidth: 1)
+                        )
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Phone Number")
-                    .font(Typography.caption)
-                    .foregroundColor(.textSecondary)
-                TextField("Phone number", text: binding(for: index, keyPath: \.phoneNumber))
-                    .font(Typography.body)
-                    .foregroundColor(.textPrimary)
-                    .keyboardType(.phonePad)
-                    .padding(12)
-                    .background(Color.appBackground)
-                    .cornerRadius(AppStyle.smallCornerRadius)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppStyle.smallCornerRadius)
-                            .stroke(Color.cardBorder, lineWidth: 1)
-                    )
+                    TextField("Phone number", text: binding(for: index, keyPath: \.phoneNumber))
+                        .font(Typography.body)
+                        .foregroundColor(.textPrimary)
+                        .keyboardType(.phonePad)
+                        .padding(12)
+                        .background(Color.appBackground)
+                        .cornerRadius(AppStyle.smallCornerRadius)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppStyle.smallCornerRadius)
+                                .stroke(Color.cardBorder, lineWidth: 1)
+                        )
+                }
+                .neonCard(glow: .neonCyan)
             }
         }
-        .neonCard(glow: .neonCyan)
     }
 
     // MARK: - Helpers

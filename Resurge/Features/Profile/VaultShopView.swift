@@ -30,6 +30,7 @@ private enum VaultShopData {
     ]
 
     static let appThemes: [VaultItem] = [
+        VaultItem(id: "default", name: "Default", description: "Classic deep navy with rainbow accents", icon: "paintbrush.fill", cost: 0, category: "App Themes"),
         VaultItem(id: "theme_midnight", name: "Midnight", description: "Deep blue-black gradient", icon: "moon.stars.fill", cost: 200, category: "App Themes"),
         VaultItem(id: "theme_aurora", name: "Neon Jungle", description: "Glowing emerald greens and electric teals", icon: "leaf.fill", cost: 300, category: "App Themes"),
         VaultItem(id: "theme_sunset", name: "Ultraviolet", description: "Deep vivid purples and hot electric pinks", icon: "bolt.fill", cost: 300, category: "App Themes"),
@@ -246,6 +247,8 @@ struct VaultShopView: View {
         do {
             let unlocks = try viewContext.fetch(request)
             purchasedItems = Set(unlocks.map { $0.cosmeticId })
+            // Default theme is always owned (free)
+            purchasedItems.insert("default")
             // Sync celebration ownership for trigger system
             for id in purchasedItems {
                 if id.hasPrefix("celebration_"), let type = CelebrationType(rawValue: id) {
@@ -256,12 +259,12 @@ struct VaultShopView: View {
             print("Failed to load cosmetic unlocks: \(error.localizedDescription)")
         }
 
-        // DEBUG: Give 200 surges for testing — REMOVE before App Store
-        if shardBalance < 200 {
-            shardBalance = 200
+        // DEBUG: Give 2000 surges for testing — REMOVE before App Store
+        if shardBalance < 2000 {
+            shardBalance = 2000
             let wallet = CDRewardWallet.fetchOrCreate(in: viewContext)
-            wallet.shardsBalance = 200
-            wallet.lifetimeEarned = max(wallet.lifetimeEarned, 200)
+            wallet.shardsBalance = 2000
+            wallet.lifetimeEarned = max(wallet.lifetimeEarned, 2000)
             try? viewContext.save()
         }
     }
@@ -449,6 +452,7 @@ private struct VaultItemCard: View {
         case "powerup_journal_prompts": PowerUpPreview(icon: "text.book.closed.fill", color: .neonBlue)
         case "powerup_weekly_insights": PowerUpPreview(icon: "chart.line.uptrend.xyaxis", color: .neonPurple)
         case "powerup_custom_milestones": PowerUpPreview(icon: "text.bubble.fill", color: .neonGold)
+        case "default": ThemePreview(colors: [Color(hex: "05051A"), Color(hex: "10102A"), Color(hex: "1E1E42"), .neonPurple])
         case "theme_midnight": ThemePreview(colors: [.black, Color(hex: "0A0A0A"), Color(hex: "1A1A1A")])
         case "theme_aurora": ThemePreview(colors: [Color(hex: "021A0A"), Color(hex: "00E676"), Color(hex: "00BFA5"), Color(hex: "39FF14")])
         case "theme_sunset": ThemePreview(colors: [Color(hex: "0E0520"), Color(hex: "E040FB"), Color(hex: "AA00FF"), Color(hex: "FF4081")])

@@ -9,6 +9,13 @@ struct PremiumGateView: View {
 
     @EnvironmentObject var environment: AppEnvironment
     @State private var isPurchasing = false
+    @State private var selectedPlan: PricingPlan = .yearly
+
+    enum PricingPlan: String {
+        case monthly = "Monthly"
+        case yearly = "Yearly"
+        case lifetime = "Lifetime"
+    }
 
     var body: some View {
         ZStack {
@@ -67,6 +74,13 @@ struct PremiumGateView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, AppStyle.screenPadding)
 
+                // Pricing options
+                HStack(spacing: 8) {
+                    planButton(plan: .monthly, price: "$4.99", period: "/mo")
+                    planButton(plan: .yearly, price: "$39.99", period: "/yr")
+                    planButton(plan: .lifetime, price: "$99.99", period: "once")
+                }
+
                 // Unlock button
                 VStack(spacing: AppStyle.spacing) {
                     Button {
@@ -78,13 +92,13 @@ struct PremiumGateView: View {
                                     .tint(.white)
                             }
                             Image(systemName: "crown.fill")
-                            Text("Unlock Premium")
+                            Text(selectedPlan == .lifetime ? "Purchase Lifetime" : "Subscribe Now")
                         }
                     }
                     .buttonStyle(GoldButtonStyle())
                     .disabled(isPurchasing)
 
-                    Text("7-day free trial, then $4.99/mo")
+                    Text("Cancel anytime. No commitment.")
                         .font(Typography.caption)
                         .foregroundColor(.subtleText)
                 }
@@ -121,9 +135,40 @@ struct PremiumGateView: View {
 
     // MARK: - Purchase
 
+    private func planButton(plan: PricingPlan, price: String, period: String) -> some View {
+        let isSelected = selectedPlan == plan
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) { selectedPlan = plan }
+        } label: {
+            VStack(spacing: 4) {
+                Text(price)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(isSelected ? .textPrimary : .subtleText)
+                Text(period)
+                    .font(.system(size: 10))
+                    .foregroundColor(.subtleText)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(isSelected ? Color.neonGold.opacity(0.1) : Color.cardBackground)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.neonGold : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+            )
+        }
+    }
+
     private func unlockPremium() {
-        guard let monthlyProduct = environment.entitlementManager.availableProducts.first(where: {
-            $0.id == "com.looproot.premium.monthly"
+        let productId: String
+        switch selectedPlan {
+        case .monthly:  productId = "com.looproot.premium.monthly"
+        case .yearly:   productId = "com.looproot.premium.yearly"
+        case .lifetime: productId = "com.looproot.premium.lifetime"
+        }
+
+        guard let product = environment.entitlementManager.availableProducts.first(where: {
+            $0.id == productId
         }) else {
             onDismiss()
             return
@@ -131,7 +176,7 @@ struct PremiumGateView: View {
 
         isPurchasing = true
         Task {
-            let result = await environment.entitlementManager.purchase(monthlyProduct)
+            let result = await environment.entitlementManager.purchase(product)
             await MainActor.run {
                 isPurchasing = false
                 switch result {

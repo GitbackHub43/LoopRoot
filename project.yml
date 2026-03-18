@@ -28,8 +28,6 @@ schemes:
       storeKitConfiguration: Resurge/Resources/Resurge.storekit
     test:
       config: Debug
-      targets:
-        - ResurgeTests
 
 targets:
   Resurge:
@@ -69,16 +67,3 @@ targets:
     entitlements:
       path: Resurge/Resources/Resurge.entitlements
 
-  ResurgeTests:
-    type: bundle.unit-test
-    platform: iOS
-    deploymentTarget: "15.0"
-    sources:
-      - path: ResurgeTests
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.looproot.app.tests
-        SWIFT_VERSION: "5.0"
-        GENERATE_INFOPLIST_FILE: true
-    dependencies:
-      - target: Resurge

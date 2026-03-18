@@ -97,6 +97,10 @@ struct ValuesCompassView: View {
             Text("Did completing this tool help you resist your craving?")
         }
         .onAppear {
+            // Always restart from step 0
+            currentStep = 0
+            isComplete = false
+            confettiVisible = false
             let saved = savedValues
             if !saved.isEmpty {
                 selectedValues = saved

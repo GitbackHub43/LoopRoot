@@ -121,8 +121,8 @@ struct SubscriptionStatusView: View {
             // Pricing cards
             HStack(spacing: 10) {
                 pricingCard(plan: .monthly, price: "$4.99", period: "/mo", savings: nil)
-                pricingCard(plan: .yearly, price: "$29.99", period: "/yr", savings: "Save 50%")
-                pricingCard(plan: .lifetime, price: "$59.99", period: "once", savings: "Best Value")
+                pricingCard(plan: .yearly, price: "$39.99", period: "/yr", savings: "Save 33%")
+                pricingCard(plan: .lifetime, price: "$99.99", period: "once", savings: "Best Value")
             }
             .padding(.horizontal)
 
@@ -137,17 +137,11 @@ struct SubscriptionStatusView: View {
                                 .tint(.white)
                         }
                         Image(systemName: "crown.fill")
-                        Text(selectedPlan == .lifetime ? "Purchase Lifetime" : "Start Free Trial")
+                        Text(selectedPlan == .lifetime ? "Purchase Lifetime" : "Subscribe Now")
                     }
                 }
                 .buttonStyle(RainbowButtonStyle())
                 .disabled(isPurchasing)
-
-                if selectedPlan != .lifetime {
-                    Text("7-day free trial, then \(selectedPlan == .monthly ? "$4.99/mo" : "$29.99/yr")")
-                        .font(Typography.caption)
-                        .foregroundColor(.subtleText)
-                }
 
                 Text("Cancel anytime. No commitment.")
                     .font(Typography.footnote)

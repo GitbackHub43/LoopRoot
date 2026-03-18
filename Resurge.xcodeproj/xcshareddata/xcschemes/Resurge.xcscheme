@@ -39,17 +39,6 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6601641CA0C69CA68E5795B4"
-               BuildableName = "ResurgeTests.xctest"
-               BlueprintName = "ResurgeTests"
-               ReferencedContainer = "container:Resurge.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

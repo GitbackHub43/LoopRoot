@@ -238,8 +238,8 @@ struct DebugTimeTravelView: View {
 
                         // Quick test (5 + 8 seconds)
                         Button {
-                            NotificationScheduler.fireTestNotification()
-                            lastAction = "Test notifications scheduled! Check in 5-8 seconds."
+                            NotificationScheduler.fireTestNotifications(context: viewContext)
+                            lastAction = "Test notifications scheduled! Minimize app to see them."
                             showConfirmation = true
                         } label: {
                             HStack {

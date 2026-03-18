@@ -451,7 +451,8 @@ struct QuickCheckInView: View {
         withAnimation(.easeInOut(duration: 0.4)) {
             showSuccess = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        let delay: Double = didLapse ? 5.0 : 1.5
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             dismiss()
         }
     }

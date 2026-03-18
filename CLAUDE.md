@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LoopRoot (codebase still named "Resurge" internally) is an iOS habit & addiction recovery app built with SwiftUI, Core Data, and MVVM architecture. It supports 10 recovery programs (smoking, alcohol, porn, phone, social media, gaming, sugar, emotional eating, shopping, gambling). Bundle ID: `com.looproot.app`. Deployment target: iOS 15+. Fully offline — no servers, no accounts, no internet required. Tagline: "Stay in the loop. Find your root."
+LoopRoot (codebase still named "Resurge" internally) is an iOS habit & addiction recovery app built with SwiftUI, Core Data, and MVVM architecture. It supports 10 recovery programs (smoking, alcohol, porn, phone, social media, gaming, sugar, emotional eating, shopping, gambling). Bundle ID: `com.looproot.app`. Deployment target: iOS 15+. Fully offline — no servers, no accounts, no internet required. Tagline: "Escape the loop. Find your root."
 
 ## Build & Run
 
@@ -12,7 +12,9 @@ LoopRoot (codebase still named "Resurge" internally) is an iOS habit & addiction
 - **Regenerate project** (when adding new files): `xcodegen generate` (requires XcodeGen via Homebrew). Scheme is defined in `project.yml`.
 - **Build**: `xcodebuild -project Resurge.xcodeproj -scheme Resurge -destination generic/platform=iOS CODE_SIGNING_ALLOWED=NO build`
 - **Build for simulator**: `xcodebuild -project Resurge.xcodeproj -scheme Resurge -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' build`
-- **Run tests**: `xcodebuild test -project Resurge.xcodeproj -scheme Resurge -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max'`
+- **Run all tests**: `xcodebuild test -project Resurge.xcodeproj -scheme Resurge -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max'`
+- **Run a single test class**: `xcodebuild test -project Resurge.xcodeproj -scheme Resurge -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' -only-testing:ResurgeTests/StreakEngineTests`
+- **Run a single test method**: `xcodebuild test -project Resurge.xcodeproj -scheme Resurge -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' -only-testing:ResurgeTests/StreakEngineTests/testStreakCount`
 - If `xcodebuild` fails with "tool requires Xcode", prefix with: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`
 - **StoreKit testing**: Set StoreKit Configuration to `Resurge/Resources/Resurge.storekit` in Xcode scheme → Run → Options
 

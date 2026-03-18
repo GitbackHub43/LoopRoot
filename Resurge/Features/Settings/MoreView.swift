@@ -127,7 +127,12 @@ struct MoreView: View {
                     // .listRowBackground(Color.cardBackground)
                 }
                 .listStyle(.insetGrouped)
+                .id("settings_list_\(selectedTheme)")
                 .onAppear { UITableView.appearance().backgroundColor = .clear }
+                .onChange(of: selectedTheme) { _ in
+                    UITableView.appearance().backgroundColor = .clear
+                    ThemeColors.shared.refresh()
+                }
             }
             .navigationTitle("More")
             .toolbar {

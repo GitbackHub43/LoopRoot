@@ -259,17 +259,9 @@ struct ToolkitView: View {
                     toolNavCard(
                         title: "Urge Defusion",
                         description: "Unhook from thoughts",
-                        icon: "thought.bubble",
+                        icon: "brain.head.profile",
                         color: .neonPurple,
                         destination: { AnyView(UrgeDefusionView()) }
-                    )
-
-                    toolNavCard(
-                        title: "Bias Training",
-                        description: "Retrain your responses",
-                        icon: "arrow.left.arrow.right",
-                        color: .neonPurple,
-                        destination: { AnyView(ApproachBiasSwipeView()) }
                     )
 
                     toolNavCard(
@@ -289,14 +281,6 @@ struct ToolkitView: View {
                 sectionHeader(icon: "leaf.fill", title: "Deep Work", color: .neonBlue)
 
                 LazyVGrid(columns: columns, spacing: AppStyle.spacing) {
-                    toolNavCard(
-                        title: "Craving Lab",
-                        description: "Analyze your cravings",
-                        icon: "flask.fill",
-                        color: .neonBlue,
-                        destination: { AnyView(CravingLabView()) }
-                    )
-
                     premiumToolCard(
                         title: "Values Compass",
                         description: "Align with your values",
@@ -328,13 +312,6 @@ struct ToolkitView: View {
                 sectionHeader(icon: "chart.line.uptrend.xyaxis", title: "Track & Learn", color: .neonGold)
 
                 LazyVGrid(columns: columns, spacing: AppStyle.spacing) {
-                    premiumToolCard(
-                        title: "Urge Log",
-                        description: "Track your urges",
-                        icon: "list.clipboard.fill",
-                        color: .neonGold
-                    ) { AnyView(UrgeLogView()) }
-
                     toolNavCard(
                         title: "Time Portal",
                         description: "See your future self",
@@ -342,15 +319,6 @@ struct ToolkitView: View {
                         color: .neonGold,
                         destination: { AnyView(TimePortalView()) }
                     )
-
-                    premiumToolCard(
-                        title: "Urge Surfing",
-                        description: "Ride the wave",
-                        icon: "water.waves",
-                        color: .neonGold
-                    ) {
-                        AnyView(UrgeSurfingView())
-                    }
 
                     toolNavCard(
                         title: "Puzzle Games",

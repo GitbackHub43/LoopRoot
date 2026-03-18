@@ -524,7 +524,8 @@ struct EveningReviewView: View {
         withAnimation(.easeInOut(duration: 0.3)) {
             showCompletion = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        let delay: Double = didLapse ? 5.0 : 1.5
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             presentationMode.wrappedValue.dismiss()
         }
     }
