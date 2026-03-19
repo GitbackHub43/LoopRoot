@@ -118,6 +118,7 @@ struct NotificationSettingsView: View {
                         Text("Set when you'd like each daily loop reminder.")
                             .font(Typography.caption)
                             .foregroundColor(.subtleText)
+
                     }
                 } header: {
                     Text("Daily Loop")

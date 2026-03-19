@@ -181,12 +181,13 @@ struct ProgressDashboardView: View {
     // MARK: - [1] Streak + Calendar (Merged, Collapsible)
 
     private var streakCalendarSection: some View {
-        var calendar = Calendar.current
-        calendar.firstWeekday = 1 // Force Sunday-first for consistency
-        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth)) ?? selectedMonth
+        let calendar = Calendar(identifier: .gregorian)
+        let comps = calendar.dateComponents([.year, .month], from: selectedMonth)
+        let monthStart = calendar.date(from: comps) ?? selectedMonth
         let daysInMonth = calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 30
-        let firstWeekday = calendar.component(.weekday, from: monthStart) // 1=Sun, 2=Mon, etc.
-        let leadingBlanks = firstWeekday - 1
+        // .weekday: 1=Sunday, 2=Monday, ... 7=Saturday (always, regardless of firstWeekday)
+        let firstWeekday = calendar.component(.weekday, from: monthStart)
+        let leadingBlanks = firstWeekday - 1 // Sunday-first: Sunday=0 blanks, Monday=1, etc.
         let logEntries = fetchLogEntries(for: monthStart)
         let today = DebugDate.startOfToday
 
@@ -214,21 +215,25 @@ struct ProgressDashboardView: View {
 
             // Large streak count
             VStack(spacing: 4) {
-                HStack(spacing: 6) {
-                    Text("\u{1F525}")
-                        .font(.title2)
-                    Text("\(currentStreak) Day Streak")
-                        .font(Typography.title)
-                        .foregroundColor(.neonOrange)
+                if currentStreak > 0 {
+                    HStack(spacing: 6) {
+                        Text("\u{1F525}")
+                            .font(.title2)
+                        Text("\(currentStreak) Day Streak")
+                            .font(Typography.title)
+                            .foregroundColor(.neonOrange)
+                    }
                 }
 
-                HStack {
-                    Image(systemName: "trophy.fill")
-                        .font(.caption)
-                        .foregroundColor(.neonGold)
-                    Text("Best streak: \(bestStreak) days")
-                        .font(Typography.callout)
-                        .foregroundColor(.textSecondary)
+                if bestStreak > 0 {
+                    HStack {
+                        Image(systemName: "trophy.fill")
+                            .font(.caption)
+                            .foregroundColor(.neonGold)
+                        Text("Best streak: \(bestStreak) day\(bestStreak == 1 ? "" : "s")")
+                            .font(Typography.callout)
+                            .foregroundColor(.textSecondary)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -237,7 +242,9 @@ struct ProgressDashboardView: View {
                 // Month navigation
                 HStack {
                     Button(action: {
-                        if let prev = calendar.date(byAdding: .month, value: -1, to: selectedMonth) {
+                        var newComps = calendar.dateComponents([.year, .month], from: monthStart)
+                        newComps.month = (newComps.month ?? 1) - 1
+                        if let prev = calendar.date(from: newComps) {
                             selectedMonth = prev
                         }
                     }) {
@@ -255,7 +262,9 @@ struct ProgressDashboardView: View {
                     Spacer()
 
                     Button(action: {
-                        if let next = calendar.date(byAdding: .month, value: 1, to: selectedMonth) {
+                        var newComps = calendar.dateComponents([.year, .month], from: monthStart)
+                        newComps.month = (newComps.month ?? 1) + 1
+                        if let next = calendar.date(from: newComps) {
                             selectedMonth = next
                         }
                     }) {
@@ -298,10 +307,21 @@ struct ProgressDashboardView: View {
                                 .frame(width: 28, height: 28)
 
                             if status.showFlame {
-                                // Sober day: flame overlay
                                 Text("\u{1F525}")
                                     .font(.system(size: 11))
                                     .offset(x: 8, y: -8)
+                            }
+
+                            if status.showLapseX {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 12, height: 12)
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 6, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                .offset(x: 8, y: -8)
                             }
 
                             Text("\(day)")
@@ -637,6 +657,14 @@ struct ProgressDashboardView: View {
         let color: Color
         let textColor: Color
         let showFlame: Bool
+        let showLapseX: Bool
+
+        init(color: Color, textColor: Color, showFlame: Bool, showLapseX: Bool = false) {
+            self.color = color
+            self.textColor = textColor
+            self.showFlame = showFlame
+            self.showLapseX = showLapseX
+        }
     }
 
     private func dayStatus(for date: Date, logEntries: [CDDailyLogEntry], isFuture: Bool) -> DayDisplayStatus {
@@ -645,14 +673,14 @@ struct ProgressDashboardView: View {
         }
 
         let calendar = Calendar.current
-        let matchingEntry = logEntries.first { calendar.isDate($0.date, inSameDayAs: date) }
+        let matchingEntries = logEntries.filter { calendar.isDate($0.date, inSameDayAs: date) }
 
-        if let entry = matchingEntry {
-            if entry.lapsedToday {
-                // Lapse day: red with X marker
-                return DayDisplayStatus(color: Color.red.opacity(0.7), textColor: .white, showFlame: false)
+        if !matchingEntries.isEmpty {
+            // If ANY entry for this day has a lapse, the day is a lapse day
+            let hasLapse = matchingEntries.contains { $0.lapsedToday }
+            if hasLapse {
+                return DayDisplayStatus(color: Color.red.opacity(0.7), textColor: .white, showFlame: false, showLapseX: true)
             } else {
-                // Sober day: green with flame
                 return DayDisplayStatus(color: Color.green.opacity(0.7), textColor: .white, showFlame: true)
             }
         }

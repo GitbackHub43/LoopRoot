@@ -311,7 +311,7 @@ private struct VaultItemCard: View {
                         .foregroundColor(.premiumGold)
                 }
             } else if isPurchased {
-                if item.id.hasPrefix("theme_") {
+                if item.category == "App Themes" {
                     let isActive = selectedTheme == item.id
                     Button {
                         selectedTheme = item.id
@@ -488,7 +488,7 @@ private struct VaultItemCard: View {
 // MARK: - Animated Previews
 
 // Rainbow Burst — colorful explosion bursting outward
-private struct RainbowBurstPreview: View {
+struct RainbowBurstPreview: View {
     @State private var phase: CGFloat = 0
     private let colors: [Color] = [.neonCyan, .neonBlue, .neonPurple, .neonMagenta, .neonOrange, .neonGold]
     var body: some View {
@@ -510,7 +510,7 @@ private struct RainbowBurstPreview: View {
 }
 
 // Golden Shower — individual gold drops falling from shower head at different speeds
-private struct GoldenShowerPreview: View {
+struct GoldenShowerPreview: View {
     var body: some View {
         ZStack {
             // Shower head circle at top
@@ -566,7 +566,7 @@ private struct GoldRainDrop: View {
 }
 
 // Neon Rain — individual neon drops falling at different times and speeds like real rain
-private struct NeonRainPreview: View {
+struct NeonRainPreview: View {
     private let colors: [Color] = [.neonCyan, .neonPurple, .neonMagenta, .neonGreen, .neonBlue, .neonOrange, .neonGold]
     var body: some View {
         ZStack {
@@ -620,7 +620,7 @@ private struct NeonRainDrop: View {
 }
 
 // Cosmic Sparkle — deep space with twinkling stars
-private struct CosmicSparklePreview: View {
+struct CosmicSparklePreview: View {
     @State private var twinkle = false
     var body: some View {
         ZStack {
@@ -666,17 +666,32 @@ private struct WatchSkinPreview: View {
                 Text("12:00").font(.system(size: 14, weight: .bold, design: .monospaced)).foregroundColor(.neonGreen)
 
             case .luxury:
-                Circle().stroke(Color.neonGold, lineWidth: 3).frame(width: 50, height: 50)
-                Circle().fill(Color.neonGold).frame(width: 4, height: 4)
-                ForEach(0..<12, id: \.self) { i in
-                    let isMain = i % 3 == 0
-                    Circle().fill(isMain ? Color.white : Color.neonGold.opacity(0.5))
-                        .frame(width: isMain ? 4 : 2, height: isMain ? 4 : 2)
-                        .offset(y: -20)
-                        .rotationEffect(.degrees(Double(i) * 30))
+                // Gold diamond bezel
+                Circle()
+                    .fill(LinearGradient(colors: [Color(hex: "FFD700"), Color(hex: "B8860B")], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 52, height: 52)
+                Circle()
+                    .fill(Color(hex: "1A1A2E"))
+                    .frame(width: 44, height: 44)
+                // Diamond markers at 12, 3, 6, 9
+                ForEach(0..<4, id: \.self) { i in
+                    Image(systemName: "diamond.fill")
+                        .font(.system(size: 5))
+                        .foregroundColor(.white)
+                        .offset(y: -18)
+                        .rotationEffect(.degrees(Double(i) * 90))
                 }
-                Rectangle().fill(Color.neonGold).frame(width: 2, height: 14).offset(y: -5)
-                Rectangle().fill(Color.white).frame(width: 1.5, height: 10).offset(x: 3, y: -2).rotationEffect(.degrees(90))
+                // Elegant clock hands
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(Color.neonGold)
+                    .frame(width: 1.5, height: 12)
+                    .offset(y: -4)
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(Color.white)
+                    .frame(width: 1, height: 8)
+                    .offset(y: -2)
+                    .rotationEffect(.degrees(60))
+                Circle().fill(Color.neonGold).frame(width: 3, height: 3)
 
             case .holographic:
                 Circle()
@@ -730,7 +745,7 @@ private struct PowerUpPreview: View {
 }
 
 // Theme Preview — animated gradient swatch
-private struct ThemePreview: View {
+struct ThemePreview: View {
     let colors: [Color]
     @State private var shift = false
     var body: some View {

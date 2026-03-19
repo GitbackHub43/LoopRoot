@@ -37,7 +37,7 @@ struct SubscriptionStatusView: View {
         FeatureRow(name: "Unlimited habits", freeIncluded: false, premiumIncluded: true),
         FeatureRow(name: "Advanced analytics", freeIncluded: false, premiumIncluded: true),
         FeatureRow(name: "5x daily motivation", freeIncluded: false, premiumIncluded: true),
-        FeatureRow(name: "Coaching plans", freeIncluded: false, premiumIncluded: true),
+        FeatureRow(name: "Daily coaching", freeIncluded: false, premiumIncluded: true),
         FeatureRow(name: "Unlock all badges", freeIncluded: false, premiumIncluded: true),
     ]
 

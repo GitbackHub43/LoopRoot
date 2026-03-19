@@ -523,7 +523,13 @@ struct JournalEditorView: View {
 
     private func saveEntry() {
         let selectedHabit = habits.first(where: { $0.id == selectedHabitID })
-        let tagsString = selectedTags.map { $0.rawValue }.sorted().joined(separator: ",")
+        var allTags = selectedTags.map { $0.rawValue }
+
+        // Always preserve the entry context so filtering works correctly
+        if let context = entryContext, !context.isEmpty, !allTags.contains(context) {
+            allTags.append(context)
+        }
+        let tagsString = allTags.sorted().joined(separator: ",")
 
         if let entry = existingEntry {
             entry.title = title.isEmpty ? nil : title

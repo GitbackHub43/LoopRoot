@@ -21,7 +21,7 @@ struct SubscriptionOfferView: View {
         ("infinity", "Unlimited Habits", "Track as many habits as you need, all in one place."),
         ("quote.bubble.fill", "5x Daily Motivation", "Personalized motivational quotes sent to your phone."),
         ("trophy.fill", "Rewards & Collectibles", "Earn Surges, unlock collectibles, build your trophy case."),
-        ("map.fill", "Coaching Plans", "Structured day-by-day plans tailored to your habit."),
+        ("map.fill", "Daily Coaching", "Structured day-by-day coaching tailored to your habit."),
         ("rosette", "Unlock All Badges", "Access every achievement badge available for you to earn throughout your journey.")
     ]
 

@@ -43,12 +43,6 @@ final class VirtualCompanionService: ObservableObject {
         return newCompanion
     }
 
-    // MARK: - Add XP (no-op, kept for API compatibility)
-
-    func addXP(_ amount: Int32) {
-        // No-op: leveling is now streak-based via updateFromRecoveryState()
-    }
-
     // MARK: - Update From Recovery State
 
     /// Call this to refresh the companion's level and mood from actual recovery data.

@@ -18,7 +18,7 @@ struct OnboardingContainerView: View {
     @State private var programSetupValues: [String: String] = [:]
     @State private var isGoingForward = true
 
-    private let totalSteps = 8
+    private let totalSteps = 9
 
     var body: some View {
         VStack(spacing: 0) {
@@ -60,6 +60,10 @@ struct OnboardingContainerView: View {
                         advanceStep()
                     })
                 case 7:
+                    PrivacyInfoView(onNext: {
+                        advanceStep()
+                    })
+                case 8:
                     SurgesIntroView(onNext: {
                         saveHabitAndFinish()
                     })
@@ -77,7 +81,7 @@ struct OnboardingContainerView: View {
             if currentStep > 0 && currentStep < 6 {
                 bottomNavBar
             } else {
-                // Welcome (0), Subscription (6), and Surges intro (7) have their own buttons
+                // Welcome (0), Subscription (6), Privacy (7), and Surges intro (8) have their own buttons
                 progressDots
                     .padding(.bottom, AppStyle.largeSpacing)
             }

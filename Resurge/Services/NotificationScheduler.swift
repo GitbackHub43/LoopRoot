@@ -27,18 +27,31 @@ struct NotificationScheduler {
         let evening = eveningH > 0 ? eveningH : 22
         let eveningMin = eveningM
 
+        // Daily loop times as (hour, minute)
+        let loopTimes = [
+            (morning, morningMin),
+            (afternoon, afternoonMin),
+            (evening, eveningMin)
+        ]
+        let loopLabels = ["Morning Plan", "Afternoon Check-In", "Evening Review"]
+        let loopBodies = [
+            "Set your intention for today.",
+            "How's your day going? Quick check-in.",
+            "Reflect on your day. What went well?"
+        ]
+
         // Fetch habits on main thread
         let request = NSFetchRequest<CDHabit>(entityName: "CDHabit")
         request.predicate = NSPredicate(format: "isActive == YES")
         let habits = (try? context.fetch(request)) ?? []
 
-        // Collect habit data
         struct HabitInfo {
             let id: String
             let name: String
             let programType: String
         }
         let habitInfos = habits.map { HabitInfo(id: $0.id.uuidString, name: $0.name, programType: $0.programType) }
+        let habitCount = habitInfos.count
 
         // Quote slots
         let quoteSlots: [(hour: Int, minute: Int)]
@@ -53,7 +66,7 @@ struct NotificationScheduler {
         } else {
             let h = UserDefaults.standard.integer(forKey: "quoteSlot1Hour")
             let m = UserDefaults.standard.integer(forKey: "quoteSlot1Minute")
-            quoteSlots = [(h > 0 ? h : 9, m)] // Default 9am for free users
+            quoteSlots = [(h > 0 ? h : 9, m)]
         }
 
         // Now schedule on background
@@ -68,80 +81,50 @@ struct NotificationScheduler {
             center.removeAllPendingNotificationRequests()
 
             // MARK: - Daily Loop Reminders
-            // Each habit gets staggered by habitIndex * 10 seconds added to the minute
+            // Each habit gets staggered by 1 minute per habit index
             if dailyLoopEnabled {
-                for (habitIndex, habit) in habitInfos.enumerated() {
-                    let rawName = habit.name
-                    let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
-                    let stagger = habitIndex // Stagger by 1 minute per habit
+                for (loopIndex, loopTime) in loopTimes.enumerated() {
+                    for (_, habit) in habitInfos.enumerated() {
+                        let rawName = habit.name
+                        let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
 
-                    let mMin = (morningMin + stagger) % 60
-                    let mHour = morningMin + stagger >= 60 ? (morning + 1) % 24 : morning
-
-                    let aMin = (afternoonMin + stagger) % 60
-                    let aHour = afternoonMin + stagger >= 60 ? (afternoon + 1) % 24 : afternoon
-
-                    let eMin = (eveningMin + stagger) % 60
-                    let eHour = eveningMin + stagger >= 60 ? (evening + 1) % 24 : evening
-
-                    scheduleDailyNotification(
-                        id: "daily_morning_\(habit.id)",
-                        hour: mHour, minute: mMin,
-                        title: stealthEnabled ? "Reminder" : "Morning Plan — \(habitLabel)",
-                        body: stealthEnabled ? "You have a pending check-in." : "Set your intention for today.",
-                        center: center
-                    )
-
-                    scheduleDailyNotification(
-                        id: "daily_afternoon_\(habit.id)",
-                        hour: aHour, minute: aMin,
-                        title: stealthEnabled ? "Reminder" : "Afternoon Check-In — \(habitLabel)",
-                        body: stealthEnabled ? "You have a pending check-in." : "How's your day going? Quick check-in.",
-                        center: center
-                    )
-
-                    scheduleDailyNotification(
-                        id: "daily_evening_\(habit.id)",
-                        hour: eHour, minute: eMin,
-                        title: stealthEnabled ? "Reminder" : "Evening Review — \(habitLabel)",
-                        body: stealthEnabled ? "You have a pending check-in." : "Reflect on your day. What went well?",
-                        center: center
-                    )
+                        // All habits fire at the exact same time — they stack
+                        scheduleDailyNotification(
+                            id: "daily_\(loopLabels[loopIndex].replacingOccurrences(of: " ", with: "_"))_\(habit.id)",
+                            hour: loopTime.0, minute: loopTime.1,
+                            title: stealthEnabled ? "Reminder" : "\(loopLabels[loopIndex]) — \(habitLabel)",
+                            body: stealthEnabled ? "You have a pending check-in." : loopBodies[loopIndex],
+                            center: center
+                        )
+                    }
                 }
             }
 
             // MARK: - Motivational Quote Notifications
-            // Scheduled 2 minutes after corresponding daily loop time
             if dailyQuoteEnabled {
-                for (habitIndex, habit) in habitInfos.enumerated() {
-                    let programType = ProgramType(rawValue: habit.programType)
-                    let rawName = habit.name
-                    let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
+                for (slotIndex, slot) in quoteSlots.enumerated() {
+                    for (habitIndex, habit) in habitInfos.enumerated() {
+                        let programType = ProgramType(rawValue: habit.programType)
+                        let rawName = habit.name
+                        let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
 
-                    let quotePool = QuoteBank.allQuotes.filter { q in
-                        q.programTypes == nil || (programType != nil && q.programTypes!.contains(programType!))
-                    }
-
-                    for (slotIndex, slot) in quoteSlots.enumerated() {
-                        for day in 0..<7 {
-                            guard let targetDate = Calendar.current.date(byAdding: .day, value: day, to: Date()) else { continue }
-                            let seed = (Calendar.current.ordinality(of: .day, in: .year, for: targetDate) ?? 1) + slotIndex * 37 + habitIndex * 13
-                            let quote = quotePool.isEmpty ? QuoteBank.allQuotes[0] : quotePool[seed % quotePool.count]
-
-                            let id = "quote_h\(habitIndex)_s\(slotIndex)_d\(day)"
-                            var dc = Calendar.current.dateComponents([.year, .month, .day], from: targetDate)
-                            // Stagger: 2 min after daily loop + 1 min per habit
-                            dc.hour = slot.hour
-                            dc.minute = slot.minute + 2 + habitIndex
-
-                            let content = UNMutableNotificationContent()
-                            content.title = stealthEnabled ? "Motivation" : "You've Got This — \(habitLabel)"
-                            content.body = stealthEnabled ? "Open the app for your daily motivation." : quote.text
-                            content.sound = .default
-
-                            let trigger = UNCalendarNotificationTrigger(dateMatching: dc, repeats: false)
-                            center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
+                        let quotePool = QuoteBank.allQuotes.filter { q in
+                            q.programTypes == nil || (programType != nil && q.programTypes!.contains(programType!))
                         }
+
+                        // Pick a quote (changes each time app reschedules)
+                        let seed = (Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1) + slotIndex * 37 + habitIndex * 13
+                        let quote = quotePool.isEmpty ? QuoteBank.allQuotes[0] : quotePool[seed % quotePool.count]
+
+                        // Repeating daily at exact set time — same as daily loop
+                        let id = "quote_h\(habitIndex)_s\(slotIndex)"
+                        scheduleDailyNotification(
+                            id: id,
+                            hour: slot.hour, minute: slot.minute,
+                            title: stealthEnabled ? "Motivation" : "You\u{2019}ve Got This — \(habitLabel)",
+                            body: stealthEnabled ? "Open the app for your daily motivation." : quote.text,
+                            center: center
+                        )
                     }
                 }
             }
@@ -149,6 +132,11 @@ struct NotificationScheduler {
             // Log scheduled count
             center.getPendingNotificationRequests { requests in
                 print("NotificationScheduler: \(requests.count) notifications scheduled")
+                for req in requests.prefix(10) {
+                    if let cal = req.trigger as? UNCalendarNotificationTrigger {
+                        print("  → \(req.identifier): \(cal.dateComponents.hour ?? 0):\(String(format: "%02d", cal.dateComponents.minute ?? 0))")
+                    }
+                }
             }
         }
     }
@@ -194,7 +182,7 @@ struct NotificationScheduler {
 
         var delay: TimeInterval = 3 // Start 3 seconds from now
 
-        // Daily loop test notifications
+        // Daily loop test notifications — 10 sec between habits
         for habit in habits {
             let rawName = habit.name
             let habitLabel = rawName.lowercased().hasPrefix("quit") ? rawName : "Quit \(rawName)"
@@ -213,14 +201,14 @@ struct NotificationScheduler {
 
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
                 center.add(UNNotificationRequest(identifier: "test_\(loopType)_\(habit.id.uuidString)", content: content, trigger: trigger))
-                delay += 10 // 10 sec between each
+                delay += 10 // 10 sec between each habit
             }
         }
 
-        // 20 second gap before motivation quotes
-        delay += 20
+        // 1 minute gap before motivation quotes
+        delay += 60
 
-        // Motivational quote test notifications
+        // Motivational quote test notifications — 10 sec between habits
         let isPremium = UserDefaults.standard.bool(forKey: "isPremium")
         let quoteCount = isPremium ? 5 : 1
 
@@ -247,6 +235,6 @@ struct NotificationScheduler {
             }
         }
 
-        print("NotificationScheduler: Fired \(Int(delay / 10)) test notifications over \(Int(delay)) seconds")
+        print("NotificationScheduler: Fired test notifications over \(Int(delay)) seconds")
     }
 }

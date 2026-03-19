@@ -78,6 +78,26 @@ struct BodyOverrideView: View {
         } message: {
             Text("Did completing this tool help you resist your craving?")
         }
+        .onAppear {
+            currentStep = 0
+            isComplete = false
+            confettiVisible = false
+            urgeMeter = 1.0
+            coldTimeRemaining = 30
+            moveTimeRemaining = 60
+            timerActive = false
+            activeTimer?.invalidate()
+            activeTimer = nil
+            breathPhase = .inhale
+            breathCyclesCompleted = 0
+            breathCircleScale = 0.4
+            breathLabel = "Inhale"
+            relaxRegionIndex = 0
+            relaxPhase = .tense
+            relaxTimeRemaining = 5
+            showResistPopup = false
+            didResistResult = nil
+        }
         .onDisappear {
             activeTimer?.invalidate()
         }

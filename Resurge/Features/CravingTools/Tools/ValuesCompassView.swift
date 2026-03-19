@@ -97,14 +97,19 @@ struct ValuesCompassView: View {
             Text("Did completing this tool help you resist your craving?")
         }
         .onAppear {
-            // Always restart from step 0
+            // Always restart fresh
             currentStep = 0
             isComplete = false
             confettiVisible = false
-            let saved = savedValues
-            if !saved.isEmpty {
-                selectedValues = saved
-            }
+            selectedValues = []
+            chosenValue = ""
+            actionText = ""
+            selectedDuration = 120
+            timerRemaining = 0
+            timerRunning = false
+            pulseScale = 1.0
+            showResistPopup = false
+            didResistResult = nil
         }
         .onReceive(actionTimer) { _ in
             guard timerRunning, timerRemaining > 0 else { return }

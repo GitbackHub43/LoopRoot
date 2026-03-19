@@ -134,6 +134,8 @@ public class CDHabit: NSManagedObject, Identifiable {
     public func resetOnLapse() {
         startDate = DebugDate.now
         updatedAt = Date()
+        // Force Core Data to recognize the change for SwiftUI re-rendering
+        managedObjectContext?.refresh(self, mergeChanges: true)
     }
 
     // MARK: - Convenience Initializer Helper

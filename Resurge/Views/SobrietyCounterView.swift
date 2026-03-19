@@ -57,11 +57,15 @@ struct SobrietyCounterView: View {
                 .frame(width: 18, height: 18)
             case "watch_luxury":
                 ZStack {
-                    Circle().fill(Color.neonGold.opacity(0.15)).frame(width: 18, height: 18)
-                    Circle().stroke(Color.neonGold, lineWidth: 1.5).frame(width: 16, height: 16)
-                    Image(systemName: "clock.fill")
-                        .font(.system(size: 10))
-                        .foregroundColor(.neonGold)
+                    // Diamond-shaped luxury watch
+                    Image(systemName: "diamond.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(
+                            LinearGradient(colors: [.neonGold, Color(hex: "FFD700"), .neonGold.opacity(0.7)], startPoint: .top, endPoint: .bottom)
+                        )
+                    Image(systemName: "clock")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(.black.opacity(0.6))
                 }
                 .frame(width: 18, height: 18)
             case "watch_holographic":

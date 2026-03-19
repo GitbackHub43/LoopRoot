@@ -93,6 +93,11 @@ struct AchievementsView: View {
     }
 
     private var filteredProgramBadges: [MilestoneBadge] {
+        if let habit = selectedHabit, let pt = ProgramType(rawValue: habit.programType) {
+            // Show only program badges for the selected habit
+            return MilestoneBadge.programBadges.filter { $0.programType == pt }
+        }
+        // Fallback: show all active program badges
         let active = activeProgramTypes
         return MilestoneBadge.programBadges.filter { badge in
             guard let pt = badge.programType else { return false }
@@ -121,49 +126,38 @@ struct AchievementsView: View {
                             achievementsHabitPillSwitcher
                         }
 
-                        // MARK: - Top: Surges + Vault Shop (2 squares)
-                        HStack(spacing: 10) {
-                            // Surge points square
-                            VStack(spacing: 6) {
-                                Image(systemName: "diamond.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(.neonGold)
-                                    .shadow(color: .neonGold.opacity(0.4), radius: 6)
-                                Text("\(shardBalance)")
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                                    .foregroundColor(.neonGold)
-                                Text("Surges")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.subtleText)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .aspectRatio(1, contentMode: .fit)
-                            .background(Color.cardBackground)
-                            .cornerRadius(16)
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.neonGold.opacity(0.3), lineWidth: 1))
-
-                            // Vault Shop square
-                            NavigationLink(destination: VaultShopView()) {
-                                VStack(spacing: 6) {
-                                    Image(systemName: "storefront.fill")
-                                        .font(.system(size: 28))
-                                        .foregroundColor(.neonCyan)
-                                        .shadow(color: .neonCyan.opacity(0.4), radius: 6)
-                                    Text("Vault")
-                                        .font(.system(size: 14, weight: .bold))
+                        // MARK: - Vault Shop (full width button)
+                        NavigationLink(destination: VaultShopView()) {
+                            HStack(spacing: 14) {
+                                Image(systemName: "storefront.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.neonCyan)
+                                    .shadow(color: .neonCyan.opacity(0.4), radius: 6)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Vault Shop")
+                                        .font(.system(size: 16, weight: .bold))
                                         .foregroundColor(.appText)
-                                    Text("Shop")
+                                    Text("Celebrations, themes, pets & more")
                                         .font(.system(size: 11))
                                         .foregroundColor(.subtleText)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .aspectRatio(1, contentMode: .fit)
-                                .background(Color.cardBackground)
-                                .cornerRadius(16)
-                                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.neonCyan.opacity(0.3), lineWidth: 1))
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(.subtleText)
                             }
-                            .buttonStyle(.plain)
+                            .padding(16)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.neonCyan.opacity(0.08), Color.neonPurple.opacity(0.08)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(16)
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.neonCyan.opacity(0.3), lineWidth: 1))
                         }
+                        .buttonStyle(.plain)
                         .padding(.horizontal)
 
                         // MARK: - Badge Vault (underneath)
@@ -241,6 +235,22 @@ struct AchievementsView: View {
                 }
             }
             .navigationTitle("Achievements")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "diamond.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.neonGold)
+                        Text("\(shardBalance)")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(.neonGold)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.neonGold.opacity(0.12))
+                    .cornerRadius(12)
+                }
+            }
             .sheet(item: $selectedBadge) { badge in
                 BadgeDetailSheet(badge: badge, isUnlocked: unlockedKeys.contains(badge.key))
             }
@@ -441,8 +451,16 @@ struct AchievementsView: View {
         case "pet_cat": CatPetView(size: 44)
         case "pet_hamster": HamsterPetView(size: 44)
         case "pet_owl": OwlPetView(size: 44)
+        case "celebration_rainbow_burst": RainbowBurstPreview().scaleEffect(0.55)
+        case "celebration_golden_shower": GoldenShowerPreview().scaleEffect(0.55)
+        case "celebration_neon_rain": NeonRainPreview().scaleEffect(0.55)
+        case "celebration_cosmic_sparkle": CosmicSparklePreview().scaleEffect(0.55)
+        case "theme_midnight": ThemePreview(colors: [.black, Color(hex: "0A0A0A"), Color(hex: "1A1A1A")]).scaleEffect(0.65)
+        case "theme_aurora": ThemePreview(colors: [Color(hex: "021A0A"), Color(hex: "00E676"), Color(hex: "00BFA5"), Color(hex: "39FF14")]).scaleEffect(0.65)
+        case "theme_sunset": ThemePreview(colors: [Color(hex: "0E0520"), Color(hex: "E040FB"), Color(hex: "AA00FF"), Color(hex: "FF4081")]).scaleEffect(0.65)
+        case "theme_ocean": ThemePreview(colors: [Color(hex: "001428"), Color(hex: "0A3050"), Color(hex: "1A4570"), Color(hex: "2196F3")]).scaleEffect(0.65)
+        case "default": ThemePreview(colors: [Color(hex: "05051A"), Color(hex: "10102A"), Color(hex: "1E1E42"), .neonPurple]).scaleEffect(0.65)
         default:
-            // For non-pet items, show icon with color
             let config = vaultItemIcon(for: id)
             ZStack {
                 Circle().fill(config.color.opacity(0.15)).frame(width: 40, height: 40)

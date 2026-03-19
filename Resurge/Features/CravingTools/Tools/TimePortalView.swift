@@ -79,6 +79,18 @@ struct TimePortalView: View {
             Text("Did completing this tool help you resist your craving?")
         }
         .onAppear {
+            currentStep = 0
+            isComplete = false
+            confettiVisible = false
+            isCreating = false
+            sceneDescription = ""
+            selectedEmoji = ""
+            pauseCountdown = 5
+            pauseActive = false
+            displayedScene = nil
+            showResistPopup = false
+            didResistResult = nil
+
             if scenes.isEmpty {
                 isCreating = true
                 pauseActive = true

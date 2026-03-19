@@ -12,7 +12,6 @@
 		079FA2CD3A918B866D8ABD87 /* ShoppingToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED2CE1727A6B79C51E1CB646 /* ShoppingToolsView.swift */; };
 		09381B5680345616AAAF7D47 /* PuzzleGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D14143B57320D1642B35736E /* PuzzleGameView.swift */; };
 		0A6C036AE3A7321814AF8E88 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27569887C4C5DBA2955C8DB /* WelcomeView.swift */; };
-		0AE9E78DBA34CCF0FCB3972C /* HabitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E8063AD019F01DF035250A5 /* HabitDetailView.swift */; };
 		0B898FF7B6AA07F11379B7E6 /* BadgeUnlockPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2612D7FFAAC730FB528DFC5 /* BadgeUnlockPopup.swift */; };
 		0C0C76E9DC59381C9D16ED35 /* AdvancedAnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBD97976FC42E50CD5085064 /* AdvancedAnalyticsView.swift */; };
 		0F471085D8A197D018263B63 /* CravingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64ABDE18B200E9FA21778018 /* CravingModeView.swift */; };
@@ -82,6 +81,7 @@
 		58C7C9F05887B500C1690922 /* AchievementRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7B0A126125A129422CF8C3 /* AchievementRepository.swift */; };
 		59BE5774B492BD2592055ACE /* CDVirtualCompanion+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 395A9EC39120BB3309713649 /* CDVirtualCompanion+Extensions.swift */; };
 		5AAC9017634728DE6AF04A3D /* VideoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C40431061135F5CA3788F7 /* VideoDetailView.swift */; };
+		5BF29B6886F40870827973A6 /* PrivacyInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076236386464C90800B0C1F9 /* PrivacyInfoView.swift */; };
 		5FFB9F8FEF8410DEF87FB0B9 /* CDLibraryItemProgress+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FF68E3E9F0BAEADD3F6D9A /* CDLibraryItemProgress+Extensions.swift */; };
 		606BBC29ED7267B2A07CBB49 /* PremiumGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04488F7A130D42511115070 /* PremiumGateView.swift */; };
 		60C4E6896B10FBB74FA6D464 /* SubscriptionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1639CB5D6FD0F1495CF27567 /* SubscriptionStatus.swift */; };
@@ -94,7 +94,6 @@
 		645E0D294590CFE42FCEE509 /* SmokingToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB0CC428ED90BB8683B86E7 /* SmokingToolsView.swift */; };
 		64715EAC0F4FC3C712DCA6ED /* HealthTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAD9EB7F1AADBD24A01D71B /* HealthTimeline.swift */; };
 		654D1531054FB3A9F6971655 /* PremiumFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627B78338B2CAC72C62CA705 /* PremiumFeature.swift */; };
-		698C020D55981B58A9870E97 /* HabitDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AED4369324630167FB4BF4 /* HabitDetailViewModel.swift */; };
 		6A920CAF8B97FE730E4FD725 /* EmergencyModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 346433A01F513C169B853D04 /* EmergencyModeView.swift */; };
 		6C4FB198D11012BCD23F8CB6 /* CorrelationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1F788AE81668C69DA68B93C /* CorrelationEngine.swift */; };
 		6CB804873C49B010C9A609E2 /* CopingSimulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FB2D682BD86F4AF7CD3DDC /* CopingSimulatorView.swift */; };
@@ -214,6 +213,7 @@
 		02DE0016A245FEC4D24800C8 /* AddEditHabitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditHabitView.swift; sourceTree = "<group>"; };
 		03BA21DD45BBA969A6F14CFC /* AppStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyle.swift; sourceTree = "<group>"; };
 		03F781C5A4D3274E32A7333C /* InsightCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCard.swift; sourceTree = "<group>"; };
+		076236386464C90800B0C1F9 /* PrivacyInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyInfoView.swift; sourceTree = "<group>"; };
 		08AA344E1AE9B549D2AF62D7 /* IAPProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPProvider.swift; sourceTree = "<group>"; };
 		08B398066A8CC583DA890BDB /* CDSubscriptionEntitlement+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDSubscriptionEntitlement+Extensions.swift"; sourceTree = "<group>"; };
 		0CD549D4EA5620DE00B52FDA /* SugarToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SugarToolsView.swift; sourceTree = "<group>"; };
@@ -279,7 +279,6 @@
 		5BA5CD8D3FCAD61898E7A84A /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
 		5D7E209AAA205771E735643E /* PhoneToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneToolsView.swift; sourceTree = "<group>"; };
 		5E17314CA34B3D33ABF706E9 /* SubscriptionStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStatusView.swift; sourceTree = "<group>"; };
-		5E8063AD019F01DF035250A5 /* HabitDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitDetailView.swift; sourceTree = "<group>"; };
 		6014352AC2D978BD77E1FB29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		60383DF5A6D8803A0281F7ED /* JournalEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEditorView.swift; sourceTree = "<group>"; };
 		60CA4DECDE0456C66BA1FD8C /* MoodState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodState.swift; sourceTree = "<group>"; };
@@ -345,7 +344,6 @@
 		B3A7CA4E79BD945BC09D62D8 /* SeverityAssessmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeverityAssessmentView.swift; sourceTree = "<group>"; };
 		B3DBD1F7FE4EFF570845FE05 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		B4C40431061135F5CA3788F7 /* VideoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDetailView.swift; sourceTree = "<group>"; };
-		B6AED4369324630167FB4BF4 /* HabitDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitDetailViewModel.swift; sourceTree = "<group>"; };
 		B6DD758D224A310E53B2CC4D /* BreathingExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingExerciseView.swift; sourceTree = "<group>"; };
 		B8DB697FD4A31736C100EAE0 /* AchievementEvaluationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementEvaluationService.swift; sourceTree = "<group>"; };
 		B91CD27CFD93480F782C586F /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
@@ -433,7 +431,6 @@
 				127B55B4A8B33E98C2607AB6 /* EveningReviewView.swift */,
 				80162B154E95749F4BF40ADF /* GoalCompleteView.swift */,
 				35553788DDB15FFB2F611C4D /* HabitCardView.swift */,
-				5E8063AD019F01DF035250A5 /* HabitDetailView.swift */,
 				BC91C58D3A77412961C605B0 /* HomeView.swift */,
 				375776CE1E06790F51E5B58B /* LapseReviewView.swift */,
 				73D4EAB1619CFBE39D41DB51 /* MorningPlanView.swift */,
@@ -667,7 +664,6 @@
 			children = (
 				7AD4A05095E02F89D659A844 /* AnalyticsViewModel.swift */,
 				74BF1E876406336955C79012 /* CravingModeViewModel.swift */,
-				B6AED4369324630167FB4BF4 /* HabitDetailViewModel.swift */,
 				6513377E5007582A43062E2C /* HomeViewModel.swift */,
 				1A89DAA047E31FF9B3CA8E99 /* JournalViewModel.swift */,
 				01435188640F6124C24EF76F /* OnboardingViewModel.swift */,
@@ -768,6 +764,7 @@
 				E2A1348CA0C4624675414E05 /* AddHabitOnboardingView.swift */,
 				D081710EBE60D93A3C906A63 /* NotificationSetupView.swift */,
 				B3DBD1F7FE4EFF570845FE05 /* OnboardingContainerView.swift */,
+				076236386464C90800B0C1F9 /* PrivacyInfoView.swift */,
 				3FD6F709EAD5FE69B09D7E46 /* ProgramSetupView.swift */,
 				B3A7CA4E79BD945BC09D62D8 /* SeverityAssessmentView.swift */,
 				4E317A1ED6AB914FB55680E6 /* SubscriptionOfferView.swift */,
@@ -1077,8 +1074,6 @@
 				2CB9B2CBF87E687C600952A5 /* GoalMode.swift in Sources */,
 				E1A5FCC55A413F097F654CD8 /* GroundingExerciseView.swift in Sources */,
 				54629A8FF5E0805C0F25687B /* HabitCardView.swift in Sources */,
-				0AE9E78DBA34CCF0FCB3972C /* HabitDetailView.swift in Sources */,
-				698C020D55981B58A9870E97 /* HabitDetailViewModel.swift in Sources */,
 				2CC8BC9486E017787E0D1450 /* HabitRepository.swift in Sources */,
 				52D0751D59733A0DF1A052A8 /* HabitStrengthEngine.swift in Sources */,
 				AFE7CBCA77C4910E9208FF2D /* HapticManager.swift in Sources */,
@@ -1120,6 +1115,7 @@
 				654D1531054FB3A9F6971655 /* PremiumFeature.swift in Sources */,
 				606BBC29ED7267B2A07CBB49 /* PremiumGateView.swift in Sources */,
 				9EF574694CD99C773DDD2868 /* PreviewData.swift in Sources */,
+				5BF29B6886F40870827973A6 /* PrivacyInfoView.swift in Sources */,
 				F15DD63CB70D310729A579B2 /* PrivacyLockSettingsView.swift in Sources */,
 				BE94C3535A2625DADEC4D51A /* PrivacyPolicyView.swift in Sources */,
 				47A10CE35406C1385E6FD499 /* ProcrastinationToolsView.swift in Sources */,

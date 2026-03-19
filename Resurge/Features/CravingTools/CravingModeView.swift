@@ -675,9 +675,19 @@ struct CravingModeView: View {
             durationSeconds: Int32(0)
         )
 
-        // Gave in = lapse — reset recovery timer
+        // Gave in = lapse — reset recovery timer and log lapse day
         if !didResist {
             habit.resetOnLapse()
+            // Create a lapse log entry so the calendar shows the red X
+            let lapseLog = CDDailyLogEntry(context: context)
+            lapseLog.id = UUID()
+            lapseLog.date = Calendar.current.startOfDay(for: DebugDate.now)
+            lapseLog.createdAt = Date()
+            lapseLog.entryType = "lapse"
+            lapseLog.lapsedToday = true
+            lapseLog.lapseNotes = journalNotes.isEmpty ? nil : journalNotes
+            lapseLog.mood = 1
+            lapseLog.habit = habit
         }
 
         // Also save journal notes as a separate craving journal entry

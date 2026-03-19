@@ -215,9 +215,6 @@ struct DailyChallengeView: View {
         formatter.dateFormat = "yyyy-MM-dd"
         lastCompletedChallengeDate = formatter.string(from: Date())
 
-        // Award companion XP for completing the challenge
-        environment.companionService.addXP(15)
-
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             isCompleted = true
             showCelebration = true

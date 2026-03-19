@@ -13,7 +13,7 @@ struct CopingSimulatorView: View {
     @State private var confettiVisible: Bool = false
     @State private var selectedChoice: Int? = nil
     @State private var showOutcome: Bool = false
-    @State private var totalXP: Int = 0
+    @State private var scenariosCompleted: Int = 0
     @State private var showResistPopup = false
     @State private var didResistResult: Bool? = nil
 
@@ -92,6 +92,16 @@ struct CopingSimulatorView: View {
         } message: {
             Text("Did completing this tool help you resist your craving?")
         }
+        .onAppear {
+            currentScenario = 0
+            isComplete = false
+            confettiVisible = false
+            selectedChoice = nil
+            showOutcome = false
+            scenariosCompleted = 0
+            showResistPopup = false
+            didResistResult = nil
+        }
     }
 
     // MARK: - Scenario View
@@ -110,19 +120,19 @@ struct CopingSimulatorView: View {
                 VStack(spacing: AppStyle.largeSpacing) {
                     Spacer().frame(height: 12)
 
-                    // XP counter
+                    // Progress counter
                     HStack {
                         Spacer()
                         HStack(spacing: 6) {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.neonGold)
-                            Text("\(totalXP) XP")
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.neonGreen)
+                            Text("\(scenariosCompleted) / \(scenarios.count) completed")
                                 .font(Typography.headline)
-                                .foregroundColor(.neonGold)
+                                .foregroundColor(.neonGreen)
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
-                        .background(Color.neonGold.opacity(0.12))
+                        .background(Color.neonGreen.opacity(0.12))
                         .cornerRadius(20)
                     }
                     .padding(.horizontal, AppStyle.screenPadding)
@@ -289,11 +299,11 @@ struct CopingSimulatorView: View {
             // Final score
             VStack(spacing: 8) {
                 HStack(spacing: 6) {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.neonGold)
-                    Text("\(totalXP) / 60 XP")
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(.neonGreen)
+                    Text("\(scenariosCompleted) / \(scenarios.count) scenarios")
                         .font(Typography.statValue)
-                        .foregroundColor(.neonGold)
+                        .foregroundColor(.neonGreen)
                 }
 
                 Text(scoreMessage)
@@ -324,8 +334,8 @@ struct CopingSimulatorView: View {
     }
 
     private var scoreMessage: String {
-        if totalXP >= 50 { return "Outstanding judgment! You\u{2019}re ready for anything." }
-        if totalXP >= 30 { return "Good instincts! Keep practicing." }
+        if scenariosCompleted >= scenarios.count { return "Outstanding judgment! You\u{2019}re ready for anything." }
+        if scenariosCompleted >= scenarios.count / 2 { return "Good instincts! Keep practicing." }
         return "Every practice session makes you stronger."
     }
 
@@ -337,7 +347,7 @@ struct CopingSimulatorView: View {
             showOutcome = true
         }
         if isHealthy {
-            totalXP += 10
+            scenariosCompleted += 1
         }
     }
 

@@ -65,11 +65,11 @@ struct MainTabView: View {
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
 
-            // Full-screen celebration overlay
-            CelebrationOverlayView()
-
             // Badge unlock popup (queued, one at a time)
             BadgeUnlockPopupView()
+
+            // Full-screen celebration overlay (on top of everything)
+            CelebrationOverlayView()
         }
         .onTapGesture(count: 3) {
             if quickHideEnabled {

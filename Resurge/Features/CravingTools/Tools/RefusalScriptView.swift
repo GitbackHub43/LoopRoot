@@ -123,6 +123,14 @@ struct RefusalScriptView: View {
         } message: {
             Text("Did completing this tool help you resist your craving?")
         }
+        .onAppear {
+            currentStep = 0
+            isComplete = false
+            confettiVisible = false
+            selectedScript = nil
+            showResistPopup = false
+            didResistResult = nil
+        }
     }
 
     // MARK: - Main Content

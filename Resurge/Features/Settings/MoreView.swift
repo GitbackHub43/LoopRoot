@@ -35,6 +35,7 @@ struct MoreView: View {
 
                         NavigationLink {
                             StealthSettingsView()
+                                .environmentObject(environment)
                         } label: {
                             settingsRow(icon: "eye.slash.fill", title: "Stealth Mode", color: .neonPurple)
                         }
@@ -127,10 +128,15 @@ struct MoreView: View {
                     // .listRowBackground(Color.cardBackground)
                 }
                 .listStyle(.insetGrouped)
-                .id("settings_list_\(selectedTheme)")
-                .onAppear { UITableView.appearance().backgroundColor = .clear }
+                .id("settings_\(selectedTheme)")
+                .onAppear {
+                    UITableView.appearance().backgroundColor = .clear
+                    UICollectionView.appearance().backgroundColor = .clear
+                    ThemeColors.shared.refresh()
+                }
                 .onChange(of: selectedTheme) { _ in
                     UITableView.appearance().backgroundColor = .clear
+                    UICollectionView.appearance().backgroundColor = .clear
                     ThemeColors.shared.refresh()
                 }
             }

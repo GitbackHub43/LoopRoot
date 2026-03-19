@@ -116,23 +116,22 @@ struct GroundingExerciseView: View {
     // MARK: - Progress Bar
 
     private var progressBar: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.cardBackground)
-                    .frame(height: 8)
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.cardBackground)
+                .frame(height: 8)
 
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(
-                        LinearGradient(
-                            colors: [.neonCyan, .neonBlue, .neonPurple, .neonMagenta, .neonGold],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
+            RoundedRectangle(cornerRadius: 4)
+                .fill(
+                    LinearGradient(
+                        colors: [.neonCyan, .neonBlue, .neonPurple, .neonMagenta, .neonGold],
+                        startPoint: .leading,
+                        endPoint: .trailing
                     )
-                    .frame(width: geo.size.width * CGFloat(currentStep + 1) / 5.0, height: 8)
-                    .animation(.easeInOut(duration: 0.4), value: currentStep)
-            }
+                )
+                .frame(height: 8)
+                .frame(maxWidth: .infinity)
+                .scaleEffect(x: CGFloat(currentStep + 1) / 5.0, y: 1, anchor: .leading)
         }
         .frame(height: 8)
     }
@@ -150,37 +149,33 @@ struct GroundingExerciseView: View {
                             .stroke(rainbowColors[index].opacity(0.5), lineWidth: 1)
                     )
                     .shadow(color: index <= currentStep ? rainbowColors[index].opacity(0.4) : .clear, radius: 4, x: 0, y: 0)
-                    .animation(.easeInOut(duration: 0.3), value: currentStep)
             }
         }
+        .animation(.none, value: currentStep)
     }
 
     // MARK: - Navigation Buttons
 
     private var navigationButtons: some View {
         HStack(spacing: AppStyle.spacing) {
-            if currentStep > 0 {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        currentStep -= 1
-                    }
-                } label: {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
+            Button {
+                currentStep -= 1
+            } label: {
+                HStack {
+                    Image(systemName: "chevron.left")
+                    Text("Back")
                 }
-                .buttonStyle(SecondaryButtonStyle(color: steps[currentStep].color))
             }
+            .buttonStyle(SecondaryButtonStyle(color: steps[currentStep].color))
+            .opacity(currentStep > 0 ? 1 : 0)
+            .disabled(currentStep == 0)
 
             Button {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    if currentStep < 4 {
-                        currentStep += 1
-                    } else {
-                        isComplete = true
-                        confettiVisible = true
-                    }
+                if currentStep < 4 {
+                    currentStep += 1
+                } else {
+                    isComplete = true
+                    confettiVisible = true
                 }
             } label: {
                 HStack {
@@ -192,6 +187,7 @@ struct GroundingExerciseView: View {
             }
             .buttonStyle(RainbowButtonStyle())
         }
+        .animation(.none, value: currentStep)
     }
 
     // MARK: - Completion View

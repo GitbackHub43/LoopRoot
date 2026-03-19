@@ -37,27 +37,32 @@ struct WeekOverWeekView: View {
         ])
         let resisted = (try? viewContext.count(for: cravingRequest)) ?? 0
 
-        // Days clean — use the habit's actual days sober, capped to this week
-        let habitStart = calendar.startOfDay(for: habit.startDate)
-        let effectiveStart = max(weekStart, habitStart) // Don't count before habit existed
-        let effectiveEnd = weeksAgo == 0 ? calendar.date(byAdding: .day, value: 1, to: today)! : weekEnd
-
-        let daysInRange: Int
-        if effectiveStart >= effectiveEnd {
-            daysInRange = 0
+        // Days clean — for current week, use the habit's current streak capped to days elapsed this week
+        // For last week, calculate from log entries
+        let daysClean: Int
+        if weeksAgo == 0 {
+            // Current week: use the actual current streak, capped to days elapsed this week
+            let daysElapsedThisWeek = max(0, calendar.dateComponents([.day], from: weekStart, to: today).day ?? 0)
+            daysClean = min(habit.currentStreak, daysElapsedThisWeek)
         } else {
-            daysInRange = max(0, calendar.dateComponents([.day], from: effectiveStart, to: effectiveEnd).day ?? 0)
+            // Past weeks: count days minus lapse days
+            let habitStart = calendar.startOfDay(for: habit.startDate)
+            let effectiveStart = max(weekStart, habitStart)
+            let daysInRange: Int
+            if effectiveStart >= weekEnd {
+                daysInRange = 0
+            } else {
+                daysInRange = max(0, calendar.dateComponents([.day], from: effectiveStart, to: weekEnd).day ?? 0)
+            }
+            let logRequest = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
+            logRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "habit == %@", habit),
+                NSPredicate(format: "createdAt >= %@ AND createdAt < %@", effectiveStart as NSDate, weekEnd as NSDate),
+                NSPredicate(format: "lapsedToday == YES")
+            ])
+            let lapseDays = (try? viewContext.count(for: logRequest)) ?? 0
+            daysClean = max(0, daysInRange - lapseDays)
         }
-
-        // Count lapse entries in this range
-        let logRequest = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
-        logRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-            NSPredicate(format: "habit == %@", habit),
-            NSPredicate(format: "createdAt >= %@ AND createdAt < %@", effectiveStart as NSDate, effectiveEnd as NSDate),
-            NSPredicate(format: "lapsedToday == YES")
-        ])
-        let lapseDays = (try? viewContext.count(for: logRequest)) ?? 0
-        let daysClean = max(0, daysInRange - lapseDays)
 
         // Average mood from all log entries and journal entries this week
         let moodLogRequest = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")

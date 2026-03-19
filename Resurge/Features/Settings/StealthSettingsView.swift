@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StealthSettingsView: View {
+    @EnvironmentObject var environment: AppEnvironment
     @AppStorage("stealth_notifications") private var stealthNotifications = false
     @AppStorage("stealth_app_name") private var stealthAppName = false
     @AppStorage("quick_hide_enabled") private var quickHideEnabled = false
@@ -75,6 +76,9 @@ struct StealthSettingsView: View {
         }
         .navigationTitle("Stealth Mode")
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: stealthNotifications) { _ in
+            NotificationScheduler.scheduleAll(context: environment.viewContext)
+        }
     }
 }
 
