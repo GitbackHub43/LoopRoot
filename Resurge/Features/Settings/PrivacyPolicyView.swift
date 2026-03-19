@@ -142,7 +142,7 @@ struct PrivacyPolicyView: View {
                 If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:
 
                 Thryvenex Holdings LLC
-                Email: support@placeholder.com
+                Email: LoopRootAssist@gmail.com
 
                 We will respond to your inquiry as soon as reasonably practicable.
                 """)

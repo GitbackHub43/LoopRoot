@@ -44,5 +44,7 @@
     </array>
     <key>NSFaceIDUsageDescription</key>
     <string>LoopRoot uses Face ID to protect your private recovery data.</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 </dict>
 </plist>

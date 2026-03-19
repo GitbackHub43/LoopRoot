@@ -224,7 +224,7 @@ struct TermsOfServiceView: View {
 
                 g) Third-Party Beneficiary: Apple and its subsidiaries are third-party beneficiaries of these Terms. Upon your acceptance of these Terms, Apple will have the right (and will be deemed to have accepted the right) to enforce these Terms against you as a third-party beneficiary thereof.
 
-                h) Apple Contact: If you have any questions, complaints, or claims regarding the App, please contact Thryvenex Holdings LLC at support@placeholder.com. For general Apple inquiries, contact Apple at https://www.apple.com/legal/internet-services/itunes/.
+                h) Apple Contact: If you have any questions, complaints, or claims regarding the App, please contact Thryvenex Holdings LLC at LoopRootAssist@gmail.com. For general Apple inquiries, contact Apple at https://www.apple.com/legal/internet-services/itunes/.
                 """)
 
                 section(title: "19. Severability", body: """
@@ -251,7 +251,7 @@ struct TermsOfServiceView: View {
                 If you have any questions, concerns, or feedback regarding these Terms of Service, please contact us at:
 
                 Thryvenex Holdings LLC
-                Email: support@placeholder.com
+                Email: LoopRootAssist@gmail.com
                 """)
             }
             .padding(AppStyle.screenPadding)
