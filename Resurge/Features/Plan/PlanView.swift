@@ -200,7 +200,8 @@ struct PlanView: View {
         .sheet(isPresented: $showCreatePlan) {
             CreatePlanSheet(
                 triggers: selectedProgramType.triggers,
-                habitId: selectedHabit?.id
+                habitId: selectedHabit?.id,
+                suggestedPlans: selectedProgramType.suggestedPlans
             ) { triggerType, triggerDetails, thenSteps, responseDetail in
                 CDIfThenPlan.create(
                     in: viewContext,
@@ -670,6 +671,7 @@ struct CreatePlanSheet: View {
 
     let triggers: [String]
     let habitId: UUID?
+    var suggestedPlans: [(ifTrigger: String, thenAction: String)] = []
     let onSave: (_ triggerType: String, _ triggerDetails: String, _ thenSteps: String, _ responseDetail: String) -> Void
 
     static let responses: [(text: String, icon: String)] = [
@@ -779,6 +781,45 @@ struct CreatePlanSheet: View {
                             }
                         }
                         .neonCard(glow: .neonOrange)
+
+                        // Quick Suggestions
+                        if !suggestedPlans.isEmpty {
+                            VStack(alignment: .leading, spacing: AppStyle.spacing) {
+                                Text("Quick Add Suggestions")
+                                    .font(Typography.headline)
+                                    .foregroundColor(.neonCyan)
+
+                                ForEach(suggestedPlans, id: \.ifTrigger) { plan in
+                                    Button {
+                                        selectedTrigger = plan.ifTrigger
+                                        selectedResponse = plan.thenAction
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("IF \(plan.ifTrigger)")
+                                                    .font(Typography.caption)
+                                                    .foregroundColor(.neonOrange)
+                                                Text("THEN \(plan.thenAction)")
+                                                    .font(Typography.caption)
+                                                    .foregroundColor(.neonGreen)
+                                            }
+                                            Spacer()
+                                            Image(systemName: "plus.circle.fill")
+                                                .foregroundColor(.neonCyan)
+                                        }
+                                        .padding(12)
+                                        .background(Color.cardBackground)
+                                        .cornerRadius(AppStyle.smallCornerRadius)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: AppStyle.smallCornerRadius)
+                                                .stroke(Color.neonCyan.opacity(0.3), lineWidth: 1)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .neonCard(glow: .neonCyan)
+                        }
 
                         // IF Section
                         VStack(alignment: .leading, spacing: AppStyle.spacing) {

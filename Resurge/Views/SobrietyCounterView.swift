@@ -5,6 +5,7 @@ struct SobrietyCounterView: View {
 
     let startDate: Date
     var isCompact: Bool = false
+    var programColor: Color = .neonCyan
 
     @State private var now = DebugDate.now
     @State private var glowOpacity: Double = 0.15
@@ -44,9 +45,9 @@ struct SobrietyCounterView: View {
             switch equippedWatchSkin {
             case "watch_classic":
                 ZStack {
-                    Circle().stroke(Color.neonCyan, lineWidth: 1.5).frame(width: 16, height: 16)
-                    Rectangle().fill(Color.neonCyan).frame(width: 1, height: 5).offset(y: -2)
-                    Rectangle().fill(Color.neonCyan).frame(width: 4, height: 1).offset(x: 1)
+                    Circle().stroke(programColor, lineWidth: 1.5).frame(width: 16, height: 16)
+                    Rectangle().fill(programColor).frame(width: 1, height: 5).offset(y: -2)
+                    Rectangle().fill(programColor).frame(width: 4, height: 1).offset(x: 1)
                 }
                 .frame(width: 18, height: 18)
             case "watch_digital":
@@ -77,7 +78,7 @@ struct SobrietyCounterView: View {
             default:
                 Image(systemName: "clock.fill")
                     .font(Typography.caption)
-                    .foregroundColor(.neonCyan)
+                    .foregroundColor(programColor)
             }
         }
     }
@@ -88,9 +89,9 @@ struct SobrietyCounterView: View {
 
             Text("\(parts.days)d \(parts.hours)h \(parts.minutes)m")
                 .font(Typography.headline)
-                .foregroundColor(.neonCyan)
+                .foregroundColor(programColor)
                 .monospacedDigit()
-                .shadow(color: .neonCyan.opacity(0.4), radius: 4, x: 0, y: 0)
+                .shadow(color: programColor.opacity(0.4), radius: 4, x: 0, y: 0)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -100,14 +101,14 @@ struct SobrietyCounterView: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(
                     LinearGradient(
-                        colors: [.neonCyan.opacity(0.5), .neonPurple.opacity(0.3)],
+                        colors: [programColor.opacity(0.5), programColor.opacity(0.2)],
                         startPoint: .leading,
                         endPoint: .trailing
                     ),
                     lineWidth: 1
                 )
         )
-        .shadow(color: .neonCyan.opacity(0.2), radius: 8, x: 0, y: 0)
+        .shadow(color: programColor.opacity(0.2), radius: 8, x: 0, y: 0)
     }
 
     // MARK: - Full Layout
@@ -119,9 +120,9 @@ struct SobrietyCounterView: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color.neonCyan.opacity(glowOpacity),
-                            Color.neonPurple.opacity(glowOpacity * 0.6),
-                            Color.neonMagenta.opacity(glowOpacity * 0.3),
+                            programColor.opacity(glowOpacity),
+                            programColor.opacity(glowOpacity * 0.6),
+                            programColor.opacity(glowOpacity * 0.3),
                             Color.clear
                         ],
                         center: .center,
@@ -138,7 +139,7 @@ struct SobrietyCounterView: View {
                 }
 
             HStack(spacing: 4) {
-                counterUnit(value: parts.days, label: "days", color: .neonCyan)
+                counterUnit(value: parts.days, label: "days", color: programColor)
                 separatorDot
                 counterUnit(value: parts.hours, label: "hours", color: .neonBlue)
                 separatorDot

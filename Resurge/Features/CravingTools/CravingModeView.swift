@@ -174,6 +174,12 @@ struct CravingModeView: View {
 
     // MARK: - Step 2: Triggers
 
+    private var currentProgramType: ProgramType {
+        guard let habit = preSelectedHabit ?? habits.first,
+              let pt = ProgramType(rawValue: habit.programType) else { return .smoking }
+        return pt
+    }
+
     private var triggersStep: some View {
         VStack(spacing: 20) {
             Text("What triggered this craving?")
@@ -183,21 +189,22 @@ struct CravingModeView: View {
             let triggerColumns = [GridItem(.adaptive(minimum: 100), spacing: 10)]
 
             LazyVGrid(columns: triggerColumns, spacing: 10) {
-                ForEach(TriggerType.allStandard) { trigger in
-                    let isSelected = selectedTriggers.contains(trigger.id)
+                ForEach(currentProgramType.triggers, id: \.self) { trigger in
+                    let isSelected = selectedTriggers.contains(trigger)
                     Button {
                         if isSelected {
-                            selectedTriggers.remove(trigger.id)
+                            selectedTriggers.remove(trigger)
                         } else {
-                            selectedTriggers.insert(trigger.id)
+                            selectedTriggers.insert(trigger)
                         }
                     } label: {
                         VStack(spacing: 6) {
-                            Image(systemName: trigger.iconName)
+                            Image(systemName: ProgramType.iconForTrigger(trigger))
                                 .font(.title3)
-                            Text(trigger.displayName)
+                            Text(trigger)
                                 .font(.caption)
-                                .lineLimit(1)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.8)
                         }
                         .frame(maxWidth: .infinity, minHeight: 70)
                         .background(isSelected ? Color.neonMagenta.opacity(0.15) : Color.cardBackground)

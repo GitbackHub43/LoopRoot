@@ -48,6 +48,10 @@ struct MorningPlanView: View {
         ("Scattered", "wind", .neonMagenta)
     ]
 
+    private var programType: ProgramType {
+        ProgramType(rawValue: habit.programType) ?? .smoking
+    }
+
     private var isPledgedToday: Bool {
         let key = "lastPledgeDate_\(habit.id.uuidString)"
         return UserDefaults.standard.string(forKey: key) == todayString
@@ -143,7 +147,7 @@ struct MorningPlanView: View {
                 .foregroundColor(.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text("I commit to my recovery today")
+            Text(programType.pledgeMessage)
                 .font(Typography.body)
                 .foregroundColor(.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -247,7 +251,7 @@ struct MorningPlanView: View {
 
             ZStack(alignment: .topLeading) {
                 if intention.isEmpty {
-                    Text("Today I will focus on...")
+                    Text(programType.goalMessage)
                         .font(Typography.body)
                         .foregroundColor(.textSecondary.opacity(0.5))
                         .padding(.horizontal, 8)

@@ -301,9 +301,13 @@ struct EveningReviewView: View {
 
     // MARK: - Reflection
 
+    private var programType: ProgramType {
+        ProgramType(rawValue: habit.programType) ?? .smoking
+    }
+
     private var reflectionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("What did I learn today?")
+            Text(programType.reflectionMessage)
                 .font(Typography.title)
                 .foregroundColor(.textPrimary)
 

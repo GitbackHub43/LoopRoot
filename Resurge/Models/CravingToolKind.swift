@@ -88,6 +88,22 @@ enum CravingToolKind: Codable, Hashable, Identifiable {
         }
     }
 
+    var shortDescription: String {
+        switch self {
+        case .breathing:        return "Calm your body"
+        case .puzzle:           return "Redirect your focus"
+        case .quotes:           return "Find motivation"
+        case .journaling:       return "Write it out"
+        case .bodyOverride:     return "Physical reset"
+        case .urgeDefusion:     return "Talk back to urges"
+        case .copingSimulator:  return "Practice scenarios"
+        case .futureThinking:   return "See your future self"
+        case .focusShift:       return "Sharpen attention"
+        case .valuesCompass:    return "Reconnect with values"
+        case .programSpecific:  return "Program-specific tool"
+        }
+    }
+
     // MARK: - Codable
 
     private enum CodingKeys: String, CodingKey {

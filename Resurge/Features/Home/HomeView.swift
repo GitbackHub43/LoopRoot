@@ -42,6 +42,11 @@ struct HomeView: View {
         return activeHabits[max(index, 0)]
     }
 
+    private var selectedProgramType: ProgramType {
+        guard let habit = selectedHabit else { return .smoking }
+        return ProgramType(rawValue: habit.programType) ?? .smoking
+    }
+
     private var hasPledgedToday: Bool {
         let _ = refreshTrigger
         guard let habit = selectedHabit else { return false }
@@ -169,6 +174,10 @@ struct HomeView: View {
                         heroCard
                             .padding(.horizontal, AppStyle.screenPadding)
 
+                        // [1.5] Did You Know? Insight Card
+                        insightCard
+                            .padding(.horizontal, AppStyle.screenPadding)
+
                         // Future start date banner
                         if let habit = selectedHabit, habit.startDate > Date() {
                             HStack(spacing: 12) {
@@ -227,8 +236,9 @@ struct HomeView: View {
                             Text("Today")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.appText)
+                                .lineLimit(1)
                             Text({
-                                let f = DateFormatter(); f.dateFormat = "EEEE, MMM d"
+                                let f = DateFormatter(); f.dateFormat = "EEE, MMM d"
                                 return f.string(from: DebugDate.now)
                             }())
                                 .font(.system(size: 11))
@@ -238,7 +248,7 @@ struct HomeView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if let habit = selectedHabit {
-                        SobrietyCounterView(startDate: habit.startDate, isCompact: true)
+                        SobrietyCounterView(startDate: habit.startDate, isCompact: true, programColor: Color(hex: selectedProgramType.colorHex))
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -450,7 +460,7 @@ struct HomeView: View {
                         .font(Typography.body.italic())
                         .foregroundColor(.appText)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     HStack(spacing: 8) {
                         Image(systemName: programType.iconName)
@@ -820,6 +830,43 @@ struct HomeView: View {
                     }
                 }
                 .neonCard(glow: .neonGold.opacity(0.3))
+            }
+        }
+    }
+
+    // MARK: - [6] Did You Know? Insight Card
+
+    private var insightCard: some View {
+        Group {
+            if let template = ProgramTemplates.template(for: selectedProgramType),
+               !template.insightCards.isEmpty {
+                let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: DebugDate.now) ?? 0
+                let card = template.insightCards[dayOfYear % template.insightCards.count]
+                let programColor = Color(hex: selectedProgramType.colorHex)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundColor(programColor)
+                        Text("Did you know?")
+                            .font(Typography.headline)
+                            .foregroundColor(programColor)
+                        Spacer()
+                        Text(selectedProgramType.displayName)
+                            .font(Typography.caption)
+                            .foregroundColor(.subtleText)
+                    }
+
+                    Text(card.title)
+                        .font(Typography.body.weight(.semibold))
+                        .foregroundColor(.textPrimary)
+
+                    Text(card.body)
+                        .font(Typography.callout)
+                        .foregroundColor(.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .neonCard(glow: programColor.opacity(0.3))
             }
         }
     }

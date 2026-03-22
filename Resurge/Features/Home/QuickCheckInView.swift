@@ -20,6 +20,10 @@ struct QuickCheckInView: View {
     @State private var hasLoadedData = false
     @State private var isUpdate = false
 
+    private var programType: ProgramType {
+        ProgramType(rawValue: habit.programType) ?? .smoking
+    }
+
     private let moodEmojis = ["\u{1F61E}", "\u{1F61F}", "\u{1F610}", "\u{1F642}", "\u{1F604}"]
 
     var body: some View {
@@ -78,7 +82,7 @@ struct QuickCheckInView: View {
                 VStack(spacing: AppStyle.largeSpacing) {
                     // Mood Section
                     VStack(spacing: 16) {
-                        Text("How are you feeling?")
+                        Text("How are you feeling about \(programType.displayName.lowercased()) today?")
                             .font(Typography.headline)
                             .foregroundColor(.textPrimary)
 

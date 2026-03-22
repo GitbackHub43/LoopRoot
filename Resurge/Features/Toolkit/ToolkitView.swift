@@ -217,8 +217,35 @@ struct ToolkitView: View {
 
     // MARK: - Section 1: Craving Tools (Subcategorized)
 
+    private var selectedProgramType: ProgramType {
+        guard let habit = activeHabits.first else { return .smoking }
+        return ProgramType(rawValue: habit.programType) ?? .smoking
+    }
+
     private var cravingToolsSection: some View {
         VStack(alignment: .leading, spacing: AppStyle.largeSpacing) {
+
+            // SECTION: Recommended For You
+            VStack(alignment: .leading, spacing: AppStyle.spacing) {
+                let programColor = Color(hex: selectedProgramType.colorHex)
+                sectionHeader(icon: "star.fill", title: "Best for Quit \(selectedProgramType.displayName)", color: programColor)
+
+                LazyVGrid(columns: columns, spacing: AppStyle.spacing) {
+                    ForEach(selectedProgramType.recommendedTools, id: \.id) { tool in
+                        toolNavCard(
+                            title: tool.displayName,
+                            description: tool.shortDescription,
+                            icon: tool.iconName,
+                            color: programColor,
+                            destination: { recommendedToolDestination(for: tool) }
+                        )
+                    }
+                }
+                .padding(.horizontal, AppStyle.screenPadding)
+            }
+
+            RainbowDivider()
+                .padding(.horizontal, AppStyle.screenPadding)
 
             // SECTION: Quick Relief
             VStack(alignment: .leading, spacing: AppStyle.spacing) {
@@ -331,6 +358,20 @@ struct ToolkitView: View {
             }
         }
         .padding(.horizontal, AppStyle.screenPadding)
+    }
+
+    private func recommendedToolDestination(for tool: CravingToolKind) -> AnyView {
+        switch tool {
+        case .breathing:        return AnyView(BreathingExerciseView())
+        case .bodyOverride:     return AnyView(BodyOverrideView())
+        case .futureThinking:   return AnyView(TimePortalView())
+        case .valuesCompass:    return AnyView(ValuesCompassView())
+        case .copingSimulator:  return AnyView(CopingSimulatorView())
+        case .focusShift:       return AnyView(FocusShiftView())
+        case .urgeDefusion:     return AnyView(UrgeDefusionView())
+        case .puzzle:           return AnyView(NumberPuzzleView())
+        default:                return AnyView(BreathingExerciseView())
+        }
     }
 
     // MARK: - Tool Navigation Card Helper

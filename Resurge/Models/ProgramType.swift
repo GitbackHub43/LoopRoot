@@ -32,7 +32,7 @@ enum ProgramType: String, CaseIterable, Codable, Identifiable {
 
     var iconName: String {
         switch self {
-        case .smoking:          return "smoke.fill"
+        case .smoking:          return "lungs.fill"
         case .alcohol:          return "wineglass.fill"
         case .porn:             return "eye.slash.fill"
         case .phone:            return "iphone"
@@ -207,6 +207,152 @@ enum ProgramType: String, CaseIterable, Codable, Identifiable {
         case .emotionalEating: return ["Feeling sad", "Anxiety eating", "Loneliness comfort", "Boredom eating", "Anger eating", "Stress overeating", "Tiredness snacking", "Feeling overwhelmed"]
         case .shopping: return ["Payday spending urge", "Stress shopping", "Boredom browsing", "Sale notification", "Social media ad", "Emotional retail therapy", "Celebration buying", "Comparison shopping"]
         case .gambling: return ["Payday urge to bet", "Watching sports urge", "Boredom gambling", "Stress relief betting", "Seeing gambling ads", "Financial desperation", "Winning streak feeling", "Chasing losses"]
+        }
+    }
+
+    // MARK: - Trigger Icon Mapping
+
+    static func iconForTrigger(_ trigger: String) -> String {
+        let lower = trigger.lowercased()
+        // Meal / food related
+        if lower.contains("meal") || lower.contains("food") || lower.contains("sweet") || lower.contains("snack") || lower.contains("eat") { return "fork.knife" }
+        // Morning / wake
+        if lower.contains("morning") || lower.contains("wake") || lower.contains("sunrise") { return "sunrise.fill" }
+        // Coffee
+        if lower.contains("coffee") { return "cup.and.saucer.fill" }
+        // Seeing / visual
+        if lower.contains("seeing") || lower.contains("saw") || lower.contains("content") || lower.contains("ad") { return "eye.fill" }
+        // Alcohol / drinking
+        if lower.contains("alcohol") || lower.contains("drink") || lower.contains("bar") { return "wineglass.fill" }
+        // Boredom
+        if lower.contains("boredom") || lower.contains("bored") { return "clock.fill" }
+        // Stress
+        if lower.contains("stress") { return "bolt.heart.fill" }
+        // Social / peer / pressure / friends
+        if lower.contains("social") || lower.contains("peer") || lower.contains("friend") || lower.contains("pressure") { return "person.2.fill" }
+        // Loneliness / lonely
+        if lower.contains("lonely") || lower.contains("loneliness") || lower.contains("alone") { return "person.fill.questionmark" }
+        // Night / sleep / late
+        if lower.contains("night") || lower.contains("sleep") || lower.contains("late") { return "moon.fill" }
+        // Evening
+        if lower.contains("evening") { return "sunset.fill" }
+        // Celebration / party
+        if lower.contains("celebration") || lower.contains("party") || lower.contains("celebrate") { return "party.popper.fill" }
+        // Weekend / routine
+        if lower.contains("weekend") || lower.contains("routine") { return "calendar" }
+        // Emotional / feelings / sad / anger
+        if lower.contains("emotion") || lower.contains("feeling") || lower.contains("sad") || lower.contains("anger") || lower.contains("pain") || lower.contains("overwhelm") { return "heart.slash.fill" }
+        // Anxiety
+        if lower.contains("anxiety") || lower.contains("anxious") { return "waveform.path.ecg" }
+        // Work / school
+        if lower.contains("work") || lower.contains("school") || lower.contains("procrastin") { return "briefcase.fill" }
+        // Phone / notification
+        if lower.contains("notification") || lower.contains("phone") { return "bell.fill" }
+        // Conversation
+        if lower.contains("conversation") { return "bubble.left.fill" }
+        // Scroll / FOMO
+        if lower.contains("scroll") || lower.contains("fomo") || lower.contains("missing") { return "arrow.down.app.fill" }
+        // Comparison / validation
+        if lower.contains("comparison") || lower.contains("validation") { return "arrow.left.arrow.right" }
+        // Money / pay / financial / spend
+        if lower.contains("pay") || lower.contains("money") || lower.contains("financial") || lower.contains("spend") || lower.contains("sale") { return "dollarsign.circle.fill" }
+        // Sports / watching
+        if lower.contains("sport") || lower.contains("watching") { return "sportscourt.fill" }
+        // Winning / chasing / losing
+        if lower.contains("winning") || lower.contains("chasing") || lower.contains("loss") { return "dice.fill" }
+        // Energy / tiredness
+        if lower.contains("energy") || lower.contains("tired") || lower.contains("crash") { return "battery.25" }
+        // Argument
+        if lower.contains("argument") { return "exclamationmark.bubble.fill" }
+        // Escape / avoid
+        if lower.contains("escape") || lower.contains("avoid") { return "door.left.hand.open" }
+        // Gaming specific
+        if lower.contains("binge") { return "hourglass" }
+        // Default
+        return "exclamationmark.circle.fill"
+    }
+
+    // MARK: - Recommended Tools (top 3 per program)
+
+    var recommendedTools: [CravingToolKind] {
+        switch self {
+        case .smoking:         return [.breathing, .bodyOverride, .futureThinking]
+        case .alcohol:         return [.valuesCompass, .copingSimulator, .futureThinking]
+        case .porn:            return [.focusShift, .urgeDefusion, .valuesCompass]
+        case .phone:           return [.focusShift, .bodyOverride, .breathing]
+        case .gaming:          return [.focusShift, .futureThinking, .valuesCompass]
+        case .socialMedia:     return [.focusShift, .urgeDefusion, .breathing]
+        case .sugar:           return [.breathing, .bodyOverride, .urgeDefusion]
+        case .emotionalEating: return [.valuesCompass, .breathing, .urgeDefusion]
+        case .shopping:        return [.futureThinking, .valuesCompass, .copingSimulator]
+        case .gambling:        return [.valuesCompass, .copingSimulator, .futureThinking]
+        }
+    }
+
+    // MARK: - Suggested If-Then Plans
+
+    var suggestedPlans: [(ifTrigger: String, thenAction: String)] {
+        switch self {
+        case .smoking: return [
+            ("I finish a meal", "I'll chew gum and take 5 deep breaths"),
+            ("I see someone smoking", "I'll walk away and remind myself why I quit"),
+            ("I feel stressed at work", "I'll step outside for fresh air without a cigarette"),
+            ("I'm drinking coffee", "I'll hold a straw or pen instead")
+        ]
+        case .alcohol: return [
+            ("Friends invite me to a bar", "I'll suggest a coffee shop instead"),
+            ("I feel stressed after work", "I'll go for a run or call a friend"),
+            ("Someone offers me a drink", "I'll say 'I'm good with water, thanks'"),
+            ("I feel lonely on a weekend", "I'll plan a sober activity in advance")
+        ]
+        case .porn: return [
+            ("I'm alone late at night", "I'll leave my phone in another room"),
+            ("I feel bored and tempted", "I'll do 20 pushups or go for a walk"),
+            ("I see triggering content", "I'll close the browser immediately and journal"),
+            ("I can't sleep", "I'll listen to a podcast or read a book")
+        ]
+        case .phone: return [
+            ("I wake up in the morning", "I'll wait 30 minutes before checking my phone"),
+            ("I'm waiting in line", "I'll observe my surroundings instead of scrolling"),
+            ("I'm eating a meal", "I'll put my phone face down in another room"),
+            ("It's after 9 PM", "I'll charge my phone outside my bedroom")
+        ]
+        case .gaming: return [
+            ("I get home from work/school", "I'll exercise for 30 minutes first"),
+            ("My friends are playing online", "I'll suggest meeting up in person instead"),
+            ("I feel bored", "I'll work on a real-world skill or hobby"),
+            ("I can't sleep", "I'll read a book instead of gaming")
+        ]
+        case .socialMedia: return [
+            ("I reach for my phone to scroll", "I'll text a real friend instead"),
+            ("I feel FOMO", "I'll write 3 things I'm grateful for right now"),
+            ("I'm comparing myself to others", "I'll unfollow that account immediately"),
+            ("I'm bored", "I'll go outside for a 10-minute walk")
+        ]
+        case .sugar: return [
+            ("I crave something sweet", "I'll eat a piece of fruit and wait 15 minutes"),
+            ("I'm at a party with desserts", "I'll eat protein first and bring my own snack"),
+            ("I feel an afternoon energy crash", "I'll drink water and take a short walk"),
+            ("I'm stress eating sweets", "I'll do 5 minutes of deep breathing first")
+        ]
+        case .emotionalEating: return [
+            ("I feel sad and want to eat", "I'll call a friend or write in my journal"),
+            ("I'm stressed and heading to the kitchen", "I'll pause and name my emotion first"),
+            ("I'm bored and snacking", "I'll go for a walk or do a hobby instead"),
+            ("I feel overwhelmed", "I'll take 10 deep breaths before deciding to eat")
+        ]
+        case .shopping: return [
+            ("I see a sale notification", "I'll delete it immediately without opening"),
+            ("I feel the urge to browse online", "I'll make a gratitude list instead"),
+            ("I want to buy something impulsively", "I'll wait 24 hours before deciding"),
+            ("I'm stressed and want retail therapy", "I'll take a walk or call a friend")
+        ]
+        case .gambling: return [
+            ("I see a sports game and want to bet", "I'll watch without betting and enjoy the game"),
+            ("I get paid and want to gamble", "I'll transfer the money to savings immediately"),
+            ("I feel the urge to chase losses", "I'll calculate my total losses and call my support"),
+            ("I'm bored and thinking about gambling", "I'll do something physical instead")
+        ]
         }
     }
 
