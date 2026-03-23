@@ -15,8 +15,7 @@ public class CDUserSettings: NSManagedObject, Identifiable {
     @NSManaged public var dailyPledgeReminderTime: Date?
     @NSManaged public var eveningReflectionTime: Date?
     @NSManaged public var cravingCheckInEnabled: Bool
-    @NSManaged public var supabaseUserID: String?
-    @NSManaged public var lastSyncDate: Date?
+    // supabaseUserID and lastSyncDate exist in Core Data model but are unused (fully offline app)
     @NSManaged public var timezone: String
     @NSManaged public var currency: String
 
@@ -40,8 +39,6 @@ public class CDUserSettings: NSManagedObject, Identifiable {
         settings.dailyPledgeReminderTime = nil
         settings.eveningReflectionTime = nil
         settings.cravingCheckInEnabled = false
-        settings.supabaseUserID = nil
-        settings.lastSyncDate = nil
         settings.timezone = TimeZone.current.identifier
         settings.currency = "USD"
 

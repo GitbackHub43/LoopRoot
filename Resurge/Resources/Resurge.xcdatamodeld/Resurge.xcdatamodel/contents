@@ -98,8 +98,6 @@
         <attribute name="dailyPledgeReminderTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="eveningReflectionTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="cravingCheckInEnabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="supabaseUserID" optional="YES" attributeType="String"/>
-        <attribute name="lastSyncDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="timezone" attributeType="String" defaultValueString=""/>
         <attribute name="currency" attributeType="String" defaultValueString="USD"/>
     </entity>

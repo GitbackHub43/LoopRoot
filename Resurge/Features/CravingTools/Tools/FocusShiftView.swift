@@ -15,6 +15,7 @@ struct FocusShiftView: View {
     @State private var confettiVisible: Bool = false
     @State private var gameStarted: Bool = false
     @State private var showResistPopup = false
+    @State private var showLapseComfort = false
     @State private var didResistResult: Bool? = nil
 
     // Grid state
@@ -57,10 +58,15 @@ struct FocusShiftView: View {
             }
             Button("No, I gave in") {
                 trackToolCompletion(toolId: "focusShift", didResist: false, context: viewContext)
-                presentationMode.wrappedValue.dismiss()
+                showLapseComfort = true
             }
         } message: {
             Text("Did completing this tool help you resist your craving?")
+        }
+        .alert("It's okay.", isPresented: $showLapseComfort) {
+            Button("I'll Try Again") { presentationMode.wrappedValue.dismiss() }
+        } message: {
+            Text("A setback is not the end — it's a lesson. Your streak resets, but your courage doesn't. Every time you try again, you get stronger.")
         }
         .onReceive(roundTimer) { _ in
             guard gameStarted, !isComplete, !showCorrectAnswer, timeRemaining > 0 else { return }

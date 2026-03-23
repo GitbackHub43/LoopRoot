@@ -14,6 +14,7 @@ struct BodyOverrideView: View {
     @State private var urgeMeter: Double = 1.0
 
     @State private var showResistPopup = false
+    @State private var showLapseComfort = false
     @State private var didResistResult: Bool? = nil
 
     // Timers
@@ -73,10 +74,15 @@ struct BodyOverrideView: View {
             }
             Button("No, I gave in") {
                 trackToolCompletion(toolId: "bodyOverride", didResist: false, context: viewContext)
-                presentationMode.wrappedValue.dismiss()
+                showLapseComfort = true
             }
         } message: {
             Text("Did completing this tool help you resist your craving?")
+        }
+        .alert("It's okay.", isPresented: $showLapseComfort) {
+            Button("I'll Try Again") { presentationMode.wrappedValue.dismiss() }
+        } message: {
+            Text("A setback is not the end — it's a lesson. Your streak resets, but your courage doesn't. Every time you try again, you get stronger.")
         }
         .onAppear {
             currentStep = 0

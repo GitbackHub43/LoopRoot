@@ -460,6 +460,22 @@ struct AchievementsView: View {
         case "theme_sunset": ThemePreview(colors: [Color(hex: "0E0520"), Color(hex: "E040FB"), Color(hex: "AA00FF"), Color(hex: "FF4081")]).scaleEffect(0.65)
         case "theme_ocean": ThemePreview(colors: [Color(hex: "001428"), Color(hex: "0A3050"), Color(hex: "1A4570"), Color(hex: "2196F3")]).scaleEffect(0.65)
         case "default": ThemePreview(colors: [Color(hex: "05051A"), Color(hex: "10102A"), Color(hex: "1E1E42"), .neonPurple]).scaleEffect(0.65)
+        case "watch_classic":
+            WatchSkinPreview(style: .classic).scaleEffect(0.8)
+        case "watch_digital":
+            WatchSkinPreview(style: .digital).scaleEffect(0.8)
+        case "watch_luxury":
+            WatchSkinPreview(style: .luxury).scaleEffect(0.8)
+        case "watch_holographic":
+            WatchSkinPreview(style: .holographic).scaleEffect(0.8)
+        case "companion_hat":
+            CompanionPreview(emoji: "🎩", color: .neonGold).scaleEffect(0.7)
+        case "companion_glasses":
+            CompanionPreview(emoji: "🕶️", color: .neonCyan).scaleEffect(0.7)
+        case "companion_crown":
+            CompanionPreview(emoji: "👑", color: .neonGold).scaleEffect(0.7)
+        case "companion_bowtie":
+            CompanionPreview(emoji: "🎀", color: .neonMagenta).scaleEffect(0.7)
         default:
             let config = vaultItemIcon(for: id)
             ZStack {
@@ -558,7 +574,7 @@ struct AchievementsView: View {
                                 ForEach(cosmeticUnlocks, id: \.id) { unlock in
                                     VStack(spacing: 4) {
                                         vaultItemPreview(for: unlock.cosmeticId)
-                                            .frame(width: 50, height: 50)
+                                            .frame(width: 60, height: 60)
                                         Text(vaultItemName(for: unlock.cosmeticId))
                                             .font(.system(size: 9))
                                             .foregroundColor(.subtleText)

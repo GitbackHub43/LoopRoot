@@ -10,6 +10,7 @@ struct GroundingExerciseView: View {
     @State private var pulseScale: CGFloat = 1.0
     @State private var confettiVisible: Bool = false
     @State private var showResistPopup = false
+    @State private var showLapseComfort = false
     @State private var didResistResult: Bool? = nil
 
     private let steps: [GroundingStep] = [
@@ -41,10 +42,15 @@ struct GroundingExerciseView: View {
             }
             Button("No, I gave in") {
                 trackToolCompletion(toolId: "grounding", didResist: false, context: viewContext)
-                presentationMode.wrappedValue.dismiss()
+                showLapseComfort = true
             }
         } message: {
             Text("Did completing this tool help you resist your craving?")
+        }
+        .alert("It's okay.", isPresented: $showLapseComfort) {
+            Button("I'll Try Again") { presentationMode.wrappedValue.dismiss() }
+        } message: {
+            Text("A setback is not the end — it's a lesson. Your streak resets, but your courage doesn't. Every time you try again, you get stronger.")
         }
     }
 
@@ -56,6 +62,7 @@ struct GroundingExerciseView: View {
 
             // Progress bar
             progressBar
+                .animation(.none, value: currentStep)
 
             // Step indicator dots
             stepDots
@@ -73,22 +80,20 @@ struct GroundingExerciseView: View {
                     .font(Typography.title)
                     .foregroundColor(.appText)
             }
+            .animation(.none, value: currentStep)
 
             // Animated icon
             ZStack {
                 Circle()
                     .fill(steps[currentStep].color.opacity(0.12))
                     .frame(width: 100, height: 100)
-                    .scaleEffect(pulseScale)
 
                 Image(systemName: steps[currentStep].icon)
                     .font(.system(size: 44))
                     .foregroundColor(steps[currentStep].color)
                     .shadow(color: steps[currentStep].color.opacity(0.5), radius: 8, x: 0, y: 0)
-                    .scaleEffect(pulseScale)
             }
-            .onAppear { startPulse() }
-            .onChange(of: currentStep) { _ in startPulse() }
+            .animation(.none, value: currentStep)
 
             // Prompt
             Text(steps[currentStep].prompt)
@@ -96,6 +101,7 @@ struct GroundingExerciseView: View {
                 .foregroundColor(.subtleText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppStyle.screenPadding)
+                .animation(.none, value: currentStep)
 
             Text("Look around and notice them. No need to type \u{2014} just observe.")
                 .font(Typography.caption)

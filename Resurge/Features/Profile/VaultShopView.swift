@@ -47,8 +47,8 @@ private enum VaultShopData {
     static let companionAccessories: [VaultItem] = [
         VaultItem(id: "companion_hat", name: "Tiny Hat", description: "A cute top hat for your companion", icon: "hat.widebrim.fill", cost: 150, category: "Accessories"),
         VaultItem(id: "companion_glasses", name: "Cool Glasses", description: "Stylish sunglasses for your companion", icon: "eyeglasses", cost: 200, category: "Accessories"),
-        VaultItem(id: "companion_crown", name: "Royal Crown", description: "A golden crown fit for a recovery champion", icon: "crown.fill", cost: 300, category: "Accessories"),
-        VaultItem(id: "companion_bowtie", name: "Bowtie", description: "A dapper little bowtie for your companion", icon: "personalhotspot", cost: 250, category: "Accessories")
+        VaultItem(id: "companion_bowtie", name: "Bowtie", description: "A dapper little bowtie for your companion", icon: "personalhotspot", cost: 250, category: "Accessories"),
+        VaultItem(id: "companion_crown", name: "Royal Crown", description: "A golden crown fit for a recovery champion", icon: "crown.fill", cost: 300, category: "Accessories")
     ]
 }
 
@@ -259,14 +259,9 @@ struct VaultShopView: View {
             print("Failed to load cosmetic unlocks: \(error.localizedDescription)")
         }
 
-        // DEBUG: Give 2000 surges for testing — REMOVE before App Store
-        if shardBalance < 2000 {
-            shardBalance = 2000
-            let wallet = CDRewardWallet.fetchOrCreate(in: viewContext)
-            wallet.shardsBalance = 2000
-            wallet.lifetimeEarned = max(wallet.lifetimeEarned, 2000)
-            try? viewContext.save()
-        }
+        // Sync balance from Core Data to AppStorage
+        let wallet = CDRewardWallet.fetchOrCreate(in: viewContext)
+        shardBalance = Int(wallet.shardsBalance)
     }
 }
 
@@ -280,6 +275,8 @@ private struct VaultItemCard: View {
     let onBuy: () -> Void
     @AppStorage("selectedTheme") private var selectedTheme: String = "default"
     @AppStorage("activePet") private var activePet: String = ""
+    @AppStorage("showPetOnScreens") private var showPetOnScreens: Bool = true
+    @AppStorage("showWatchSkin") private var showWatchSkin: Bool = true
     @AppStorage("equippedAccessories") private var equippedAccessories: String = ""
     @AppStorage("equippedWatchSkin") private var equippedWatchSkin: String = ""
 
@@ -328,14 +325,20 @@ private struct VaultItemCard: View {
                 } else if item.id.hasPrefix("pet_") {
                     let isActive = activePet == item.id
                     Button {
-                        activePet = item.id
+                        if isActive {
+                            activePet = ""
+                            showPetOnScreens = false
+                        } else {
+                            activePet = item.id
+                            showPetOnScreens = true
+                        }
                     } label: {
-                        Text(isActive ? "Active" : "Select")
+                        Text(isActive ? "Deactivate" : "Activate")
                             .font(.subheadline.weight(.bold))
-                            .foregroundColor(isActive ? .neonGreen : .neonCyan)
+                            .foregroundColor(isActive ? .neonOrange : .neonCyan)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
-                            .background(isActive ? Color.neonGreen.opacity(0.15) : Color.neonCyan.opacity(0.15))
+                            .background(isActive ? Color.neonOrange.opacity(0.15) : Color.neonCyan.opacity(0.15))
                             .cornerRadius(12)
                     }
                 } else if item.id.hasPrefix("companion_") {
@@ -360,14 +363,20 @@ private struct VaultItemCard: View {
                 } else if item.id.hasPrefix("watch_") {
                     let isEquipped = equippedWatchSkin == item.id
                     Button {
-                        equippedWatchSkin = item.id
+                        if isEquipped {
+                            equippedWatchSkin = ""
+                            showWatchSkin = false
+                        } else {
+                            equippedWatchSkin = item.id
+                            showWatchSkin = true
+                        }
                     } label: {
-                        Text(isEquipped ? "Equipped" : "Equip")
+                        Text(isEquipped ? "Remove" : "Equip")
                             .font(.subheadline.weight(.bold))
-                            .foregroundColor(isEquipped ? .neonGreen : .neonPurple)
+                            .foregroundColor(isEquipped ? .neonOrange : .neonPurple)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
-                            .background(isEquipped ? Color.neonGreen.opacity(0.15) : Color.neonPurple.opacity(0.15))
+                            .background(isEquipped ? Color.neonOrange.opacity(0.15) : Color.neonPurple.opacity(0.15))
                             .cornerRadius(12)
                     }
                 } else {
@@ -642,7 +651,7 @@ struct CosmicSparklePreview: View {
 
 // Power-Up Preview — glowing icon with pulse
 // Watch Skin Preview
-private struct WatchSkinPreview: View {
+struct WatchSkinPreview: View {
     enum Style { case classic, digital, luxury, holographic }
     let style: Style
     @State private var pulse: CGFloat = 1.0
@@ -759,7 +768,7 @@ struct ThemePreview: View {
 }
 
 // Companion Preview — emoji with glow bounce
-private struct CompanionPreview: View {
+struct CompanionPreview: View {
     let emoji: String
     let color: Color
     @State private var bounce: CGFloat = 0

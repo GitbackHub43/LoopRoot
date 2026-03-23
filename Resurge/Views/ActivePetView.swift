@@ -5,6 +5,7 @@ import SwiftUI
 struct ActivePetView: View {
     @AppStorage("activePet") private var activePet: String = ""
     @AppStorage("equippedAccessories") private var equippedAccessories: String = ""
+    @AppStorage("showPetOnScreens") private var showPetOnScreens: Bool = true
     var size: CGFloat = 32
 
     private var accessories: Set<String> {
@@ -12,7 +13,7 @@ struct ActivePetView: View {
     }
 
     var body: some View {
-        if !activePet.isEmpty {
+        if !activePet.isEmpty && showPetOnScreens {
             ZStack {
                 petView
                 accessoryOverlays

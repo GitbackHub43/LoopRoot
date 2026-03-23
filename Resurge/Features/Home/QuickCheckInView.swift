@@ -437,10 +437,7 @@ struct QuickCheckInView: View {
             print("QuickCheckInView: Failed to save \u{2014} \(error.localizedDescription)")
         }
 
-        // Award shards only on first save
-        if !isUpdate {
-            environment.rewardService.awardShards(for: .toolCompleted, context: viewContext)
-        }
+        // Surges awarded only when all 3 daily loops complete (handled in HomeView)
 
         existingEntry = entry
         isUpdate = true

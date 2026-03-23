@@ -451,10 +451,7 @@ struct MorningPlanView: View {
             print("MorningPlanView: Failed to save entry — \(error.localizedDescription)")
         }
 
-        // Award shards only on first save
-        if !isUpdate {
-            environment.rewardService.awardShards(for: .morningPlan, context: viewContext)
-        }
+        // Surges awarded only when all 3 daily loops complete (handled in HomeView)
 
         lastMorningPlanDateString = todayString
         existingEntry = entry

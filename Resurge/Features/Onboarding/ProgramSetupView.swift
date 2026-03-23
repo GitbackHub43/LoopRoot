@@ -146,8 +146,8 @@ struct ProgramSetupView: View {
     private func saveWakeTimeDefaults() {
         let wakeHour = Calendar.current.component(.hour, from: wakeTime)
         UserDefaults.standard.set(wakeHour, forKey: "wakeUpHour")
-        UserDefaults.standard.set((wakeHour + 8) % 24, forKey: "afternoonHour")
-        UserDefaults.standard.set(min(wakeHour + 16, 23), forKey: "eveningHour")
+        UserDefaults.standard.set((wakeHour + 6) % 24, forKey: "afternoonHour")
+        UserDefaults.standard.set((wakeHour + 12) % 24, forKey: "eveningHour")
     }
 
     // MARK: - Insight Cards

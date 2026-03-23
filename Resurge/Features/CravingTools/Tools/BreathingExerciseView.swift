@@ -11,6 +11,7 @@ struct BreathingExerciseView: View {
     @State private var cycleCount = 0
     @State private var isComplete = false
     @State private var showResistPopup = false
+    @State private var showLapseComfort = false
     @State private var didResistResult: Bool? = nil
 
     enum BreathingPattern: String, CaseIterable {
@@ -55,10 +56,15 @@ struct BreathingExerciseView: View {
             }
             Button("No, I gave in") {
                 trackToolCompletion(toolId: "breathing", didResist: false, context: viewContext)
-                presentationMode.wrappedValue.dismiss()
+                showLapseComfort = true
             }
         } message: {
             Text("Did completing this tool help you resist your craving?")
+        }
+        .alert("It's okay.", isPresented: $showLapseComfort) {
+            Button("I'll Try Again") { presentationMode.wrappedValue.dismiss() }
+        } message: {
+            Text("A setback is not the end — it's a lesson. Your streak resets, but your courage doesn't. Every time you try again, you get stronger.")
         }
     }
 

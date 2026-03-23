@@ -117,6 +117,7 @@
 		89E368947F968383510E1A95 /* CDAchievementUnlock+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B75BD231B515EC60C52D442 /* CDAchievementUnlock+Extensions.swift */; };
 		8B32E15A0857DB58AE99FEA6 /* CDSubscriptionEntitlement+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B398066A8CC583DA890BDB /* CDSubscriptionEntitlement+Extensions.swift */; };
 		8D79BAFD7014F928CC82E610 /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9800EBA52B4564C8F9AA7AF2 /* SourcesView.swift */; };
+		8F3260577BA9851777CA570B /* SuggestionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872DCA2FBB33176BD9FFFFA4 /* SuggestionBoxView.swift */; };
 		8FDBBF4C14331A6C65F68D60 /* GoalCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80162B154E95749F4BF40ADF /* GoalCompleteView.swift */; };
 		938DDBBC269AC1CBFA6C6302 /* CDAchievementProgress+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 775017BB6E81A4539B3BE964 /* CDAchievementProgress+Extensions.swift */; };
 		93CA591107FB1826DE35FADE /* WeekOverWeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E30A789368540659F00E89 /* WeekOverWeekView.swift */; };
@@ -302,7 +303,7 @@
 		75DE05BD79D810B11E1577C1 /* AlcoholToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlcoholToolsView.swift; sourceTree = "<group>"; };
 		76D4E5BB971C5C8A658F36FA /* CorrelationInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrelationInsightsView.swift; sourceTree = "<group>"; };
 		775017BB6E81A4539B3BE964 /* CDAchievementProgress+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDAchievementProgress+Extensions.swift"; sourceTree = "<group>"; };
-		77A9E3DCAEFEEDEF334228D4 /* Resurge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Resurge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		77A9E3DCAEFEEDEF334228D4 /* Resurge.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Resurge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		787A1A447338166220F83031 /* CompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionView.swift; sourceTree = "<group>"; };
 		78D18EBE051E17396AD3AA31 /* PrivacyLockSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyLockSettingsView.swift; sourceTree = "<group>"; };
 		799CFF145599BF35A9DE17B7 /* CDCravingEntry+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDCravingEntry+Extensions.swift"; sourceTree = "<group>"; };
@@ -320,6 +321,7 @@
 		85597FDB01CB8DB50FCEBB4E /* CravingLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CravingLabView.swift; sourceTree = "<group>"; };
 		8612B127D7F5FA0D0685D8DF /* CalendarMilestoneService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMilestoneService.swift; sourceTree = "<group>"; };
 		86DA69AA35AAA7F60D782738 /* DebugDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugDate.swift; sourceTree = "<group>"; };
+		872DCA2FBB33176BD9FFFFA4 /* SuggestionBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionBoxView.swift; sourceTree = "<group>"; };
 		881B2044ECE50AEEF4B672DA /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		8D47DFB2E5243C14FA9B872D /* InsightsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsService.swift; sourceTree = "<group>"; };
 		8D95B2D82D96A83FE8166ACD /* TimezoneSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSetupView.swift; sourceTree = "<group>"; };
@@ -380,7 +382,7 @@
 		DDEB86DC2FA477C8C8B014D8 /* MotivationPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationPack.swift; sourceTree = "<group>"; };
 		DE566A8A09D719EC30E95225 /* QuickCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCheckInView.swift; sourceTree = "<group>"; };
 		DE7B46E2F029272D923BF1B1 /* HeatmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapView.swift; sourceTree = "<group>"; };
-		E28898C89170A6B63B8276F6 /* Resurge.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Resurge.storekit; sourceTree = "<group>"; };
+		E28898C89170A6B63B8276F6 /* Resurge.storekit */ = {isa = PBXFileReference; path = Resurge.storekit; sourceTree = "<group>"; };
 		E2A1348CA0C4624675414E05 /* AddHabitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddHabitOnboardingView.swift; sourceTree = "<group>"; };
 		E5BDC09E4A665F222042603C /* RewardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardService.swift; sourceTree = "<group>"; };
 		E5C69F6A12CF43D34ED12627 /* CoachingPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachingPlanService.swift; sourceTree = "<group>"; };
@@ -862,6 +864,7 @@
 				BFFEAD339705484489BA2B6A /* RestorePurchasesView.swift */,
 				2B2C46D6FE3B48AD089E7E93 /* StealthSettingsView.swift */,
 				5E17314CA34B3D33ABF706E9 /* SubscriptionStatusView.swift */,
+				872DCA2FBB33176BD9FFFFA4 /* SuggestionBoxView.swift */,
 				AD081B5A90FBBDE4FDBAA5D3 /* TermsOfServiceView.swift */,
 			);
 			path = Settings;
@@ -938,6 +941,7 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					2096C99D7B20DD42205064B1 = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -1154,6 +1158,7 @@
 				60C4E6896B10FBB74FA6D464 /* SubscriptionStatus.swift in Sources */,
 				6E196974F31461804C973AF4 /* SubscriptionStatusView.swift in Sources */,
 				3AA1E79CFD691D57D5C3E167 /* SugarToolsView.swift in Sources */,
+				8F3260577BA9851777CA570B /* SuggestionBoxView.swift in Sources */,
 				205CFD08AA5CFED21A315094 /* SurgesIntroView.swift in Sources */,
 				9DE06AFEE2074B3D3985CB7C /* TermsOfServiceView.swift in Sources */,
 				4D5B5778F0F5E9F0EAA91529 /* TimePortalView.swift in Sources */,
@@ -1189,7 +1194,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AQYV37UX98;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resurge/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -1333,7 +1338,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AQYV37UX98;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resurge/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;

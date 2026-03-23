@@ -3,6 +3,8 @@ import SwiftUI
 struct MoreView: View {
     @EnvironmentObject var environment: AppEnvironment
     @AppStorage("selectedTheme") private var selectedTheme: String = "default"
+    @AppStorage("showPetOnScreens") private var showPetOnScreens: Bool = true
+    @AppStorage("showWatchSkin") private var showWatchSkin: Bool = true
 
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -39,6 +41,7 @@ struct MoreView: View {
                         } label: {
                             settingsRow(icon: "eye.slash.fill", title: "Stealth Mode", color: .neonPurple)
                         }
+
                     } header: {
                         Text("Preferences")
                     }
@@ -89,6 +92,18 @@ struct MoreView: View {
                     .listRowBackground(Color.cardBackground)
 
                     // MARK: - About
+                    // MARK: - Feedback
+                    Section {
+                        NavigationLink {
+                            SuggestionBoxView()
+                        } label: {
+                            settingsRow(icon: "envelope.fill", title: "Suggestion Box", color: .neonGreen)
+                        }
+                    } header: {
+                        Text("Feedback")
+                    }
+                    .listRowBackground(Color.cardBackground)
+
                     Section {
                         HStack {
                             settingsRow(icon: "info.circle.fill", title: "App Version", color: .neonCyan)

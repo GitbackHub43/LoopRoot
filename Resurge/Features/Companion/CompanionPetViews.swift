@@ -309,21 +309,6 @@ struct HamsterPetView: View {
 
     var body: some View {
         ZStack {
-            // Wheel — behind hamster
-            Circle()
-                .stroke(Color(hex: "555555"), lineWidth: size * 0.025)
-                .frame(width: size * 0.65, height: size * 0.65)
-                .offset(y: size * 0.02)
-
-            // Wheel spokes
-            ForEach(0..<4, id: \.self) { i in
-                Rectangle()
-                    .fill(Color(hex: "444444"))
-                    .frame(width: size * 0.008, height: size * 0.32)
-                    .rotationEffect(.degrees(Double(i) * 45 + wheelSpin))
-                    .offset(y: size * 0.02)
-            }
-
             // Body — very round baby hamster
             Circle()
                 .fill(LinearGradient(colors: [Color(hex: "FFD699"), Color(hex: "F0C060")], startPoint: .top, endPoint: .bottom))

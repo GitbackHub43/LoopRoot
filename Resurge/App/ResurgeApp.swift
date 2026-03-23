@@ -22,6 +22,7 @@ struct ResurgeApp: App {
                 } else {
                     OnboardingContainerView(onComplete: {
                         hasCompletedOnboarding = true
+                        UserDefaults.standard.set(DebugDate.todayString, forKey: "onboardingCompletedDate")
                     })
                 }
             }

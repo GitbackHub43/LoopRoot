@@ -170,5 +170,11 @@ func trackToolCompletion(toolId: String, didResist: Bool = true, context: NSMana
         didResist: didResist,
         durationSeconds: 0
     )
+
+    // If they gave in, trigger full lapse reset
+    if !didResist {
+        habit.resetOnLapse()
+    }
+
     try? context.save()
 }

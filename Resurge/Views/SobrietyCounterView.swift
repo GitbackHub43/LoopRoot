@@ -10,6 +10,7 @@ struct SobrietyCounterView: View {
     @State private var now = DebugDate.now
     @State private var glowOpacity: Double = 0.15
     @AppStorage("equippedWatchSkin") private var equippedWatchSkin: String = ""
+    @AppStorage("showWatchSkin") private var showWatchSkin: Bool = true
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -42,7 +43,7 @@ struct SobrietyCounterView: View {
 
     private var watchIcon: some View {
         Group {
-            switch equippedWatchSkin {
+            switch (showWatchSkin ? equippedWatchSkin : "") {
             case "watch_classic":
                 ZStack {
                     Circle().stroke(programColor, lineWidth: 1.5).frame(width: 16, height: 16)
@@ -58,15 +59,22 @@ struct SobrietyCounterView: View {
                 .frame(width: 18, height: 18)
             case "watch_luxury":
                 ZStack {
-                    // Diamond-shaped luxury watch
-                    Image(systemName: "diamond.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(
-                            LinearGradient(colors: [.neonGold, Color(hex: "FFD700"), .neonGold.opacity(0.7)], startPoint: .top, endPoint: .bottom)
-                        )
-                    Image(systemName: "clock")
-                        .font(.system(size: 7, weight: .bold))
-                        .foregroundColor(.black.opacity(0.6))
+                    Circle()
+                        .fill(LinearGradient(colors: [Color(hex: "FFD700"), Color(hex: "B8860B")], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 18, height: 18)
+                    Circle()
+                        .fill(Color(hex: "1A1A2E"))
+                        .frame(width: 14, height: 14)
+                    ForEach(0..<4, id: \.self) { i in
+                        Image(systemName: "diamond.fill")
+                            .font(.system(size: 2))
+                            .foregroundColor(.white)
+                            .offset(y: -5.5)
+                            .rotationEffect(.degrees(Double(i) * 90))
+                    }
+                    Rectangle().fill(Color.neonGold).frame(width: 1, height: 4).offset(y: -1.5)
+                    Rectangle().fill(Color.white).frame(width: 3, height: 0.8).offset(x: 1)
+                        .rotationEffect(.degrees(60))
                 }
                 .frame(width: 18, height: 18)
             case "watch_holographic":

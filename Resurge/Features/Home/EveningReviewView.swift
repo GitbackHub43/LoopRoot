@@ -509,10 +509,7 @@ struct EveningReviewView: View {
             print("EveningReviewView: Failed to save entry \u{2014} \(error.localizedDescription)")
         }
 
-        // Award shards only on first save
-        if !isUpdate {
-            environment.rewardService.awardShards(for: .eveningReview, context: viewContext)
-        }
+        // Surges awarded only when all 3 daily loops complete (handled in HomeView)
 
         UserDefaults.standard.set(todayString, forKey: "lastEveningReviewDate_\(habit.id.uuidString)")
         existingEntry = entry

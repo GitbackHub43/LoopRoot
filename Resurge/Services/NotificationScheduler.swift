@@ -22,9 +22,9 @@ struct NotificationScheduler {
 
         let morning = morningH > 0 ? morningH : 7
         let morningMin = morningM
-        let afternoon = afternoonH > 0 ? afternoonH : 15
+        let afternoon = afternoonH > 0 ? afternoonH : 13
         let afternoonMin = afternoonM
-        let evening = eveningH > 0 ? eveningH : 22
+        let evening = eveningH > 0 ? eveningH : 19
         let eveningMin = eveningM
 
         // Daily loop times as (hour, minute)
@@ -40,9 +40,12 @@ struct NotificationScheduler {
             "Reflect on your day. What went well?"
         ]
 
-        // Fetch habits on main thread
+        // Fetch habits on main thread — only habits that have started
         let request = NSFetchRequest<CDHabit>(entityName: "CDHabit")
-        request.predicate = NSPredicate(format: "isActive == YES")
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "isActive == YES"),
+            NSPredicate(format: "startDate <= %@", Date() as NSDate)
+        ])
         let habits = (try? context.fetch(request)) ?? []
 
         struct HabitInfo {

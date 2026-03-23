@@ -54,8 +54,8 @@ struct NotificationSetupView: View {
 
                 VStack(spacing: 0) {
                     let wakeHour = UserDefaults.standard.integer(forKey: "wakeUpHour")
-                    let afternoonHour = (wakeHour + 8) % 24
-                    let eveningHour = min(wakeHour + 16, 23)
+                    let afternoonHour = (wakeHour + 6) % 24
+                    let eveningHour = (wakeHour + 12) % 24
 
                     dailyLoopSubRow(icon: "sunrise.fill", color: .neonGold, title: "Morning Plan", time: formatHour(wakeHour))
                     Divider().background(Color.cardBorder)

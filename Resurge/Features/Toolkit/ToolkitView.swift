@@ -656,9 +656,9 @@ struct ToolkitView: View {
 
     private func workbookRow(title: String, icon: String, color: Color, prompt: String?, context: String? = nil) -> some View {
         Button {
+            journalInitialPrompt = prompt
+            journalEntryContext = context
             withHabitSelection { habit in
-                journalInitialPrompt = prompt
-                journalEntryContext = context
                 selectedHabitForJournal = habit
                 showJournalEditor = true
             }

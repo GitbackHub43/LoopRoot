@@ -24,6 +24,12 @@ struct HomeView: View {
     @State private var showGoalComplete = false
     @State private var isEditingReason = false
     @State private var editedReason = ""
+    @State private var showSurgeEarned = false
+    @State private var showLockedPopup = false
+    @State private var lockedMessage = ""
+    @AppStorage("lastSurgeAwardDate") private var lastSurgeAwardDate: String = ""
+    @AppStorage("shardBalance") private var shardBalance: Int = 0
+
     // MARK: - Date Helpers
 
     private var todayString: String {
@@ -89,9 +95,7 @@ struct HomeView: View {
         return ((try? viewContext.count(for: request)) ?? 0) > 0
     }
 
-    private var totalDailyShardsEarned: Int {
-        ShardAction.morningPlan.shards + ShardAction.eveningReview.shards + ShardAction.toolCompleted.shards
-    }
+    private var totalDailyShardsEarned: Int { 15 }
 
     private var dailyLoopCompletionCount: Int {
         var count = 0
@@ -99,6 +103,79 @@ struct HomeView: View {
         if hasCheckedInToday { count += 1 }
         if hasCompletedEveningReview { count += 1 }
         return count
+    }
+
+    private var hasEarnedSurgesToday: Bool {
+        lastSurgeAwardDate == todayString
+    }
+
+    @State private var showMaxSurgesMessage = false
+    @State private var habitToDelete: CDHabit?
+    @State private var showDeleteConfirm = false
+    @State private var showDeleteTooltip = false
+
+    @State private var previousLoopCount: Int = -1
+
+    private func checkAndAwardSurges() {
+        let allComplete = hasPledgedToday && hasCheckedInToday && hasCompletedEveningReview
+        let currentCount = dailyLoopCompletionCount
+
+        // Only act when count just changed to 3 (not on every re-evaluation)
+        guard allComplete, currentCount == 3, previousLoopCount != 3 else {
+            previousLoopCount = currentCount
+            return
+        }
+        previousLoopCount = currentCount
+
+        if hasEarnedSurgesToday {
+            showMaxSurgesMessage = true
+            return
+        }
+
+        lastSurgeAwardDate = todayString
+        environment.rewardService.awardShards(for: .dailyLoopComplete, context: viewContext)
+        let wallet = CDRewardWallet.fetchOrCreate(in: viewContext)
+        shardBalance = Int(wallet.shardsBalance)
+        showSurgeEarned = true
+    }
+
+    // MARK: - Time-Locked Daily Loop Windows
+
+    private var wakeUpHour: Int {
+        UserDefaults.standard.integer(forKey: "wakeUpHour")
+    }
+
+    private var morningUnlockHour: Int { wakeUpHour }
+    private var afternoonUnlockHour: Int { (wakeUpHour + 6) % 24 }
+    private var eveningUnlockHour: Int { (wakeUpHour + 12) % 24 }
+
+    private var isHabitStarted: Bool {
+        guard let habit = selectedHabit else { return false }
+        return habit.startDate <= DebugDate.now
+    }
+
+    private func isWindowOpen(unlockHour: Int) -> Bool {
+        // Habit hasn't started yet — all windows locked
+        guard isHabitStarted else { return false }
+        // Day 1 (onboarding day) — all windows open
+        if UserDefaults.standard.string(forKey: "onboardingCompletedDate") == todayString {
+            return true
+        }
+        let calendar = Calendar.current
+        let currentHour = calendar.component(.hour, from: DebugDate.now)
+        return currentHour >= unlockHour
+    }
+
+    private var isMorningOpen: Bool { isWindowOpen(unlockHour: morningUnlockHour) }
+    private var isAfternoonOpen: Bool { isWindowOpen(unlockHour: afternoonUnlockHour) }
+    private var isEveningOpen: Bool { isWindowOpen(unlockHour: eveningUnlockHour) }
+
+    private func lockedTimeString(hour: Int) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        let calendar = Calendar.current
+        let date = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: DebugDate.now) ?? DebugDate.now
+        return formatter.string(from: date)
     }
 
     // MARK: - Scoreboard Helpers
@@ -271,7 +348,15 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showAddHabit) {
+            .sheet(isPresented: $showAddHabit, onDismiss: {
+                // Show tooltip about long-press delete when they have multiple habits
+                if activeHabits.count > 1 && !UserDefaults.standard.bool(forKey: "hasSeenDeleteTooltip") {
+                    UserDefaults.standard.set(true, forKey: "hasSeenDeleteTooltip")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showDeleteTooltip = true
+                    }
+                }
+            }) {
                 AddEditHabitView(mode: .add)
                     .environmentObject(environment)
                     .environment(\.managedObjectContext, viewContext)
@@ -288,6 +373,38 @@ struct HomeView: View {
                     GoalCompleteView(habit: habit)
                         .environment(\.managedObjectContext, viewContext)
                 }
+            }
+            .alert("Locked", isPresented: $showLockedPopup) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(lockedMessage)
+            }
+            .alert("+15 Surges Earned!", isPresented: $showSurgeEarned) {
+                Button("Awesome!", role: .cancel) {}
+            } message: {
+                Text("You completed your entire daily loop. Keep showing up every day!")
+            }
+            .alert("Max Surges Reached", isPresented: $showMaxSurgesMessage) {
+                Button("Got It", role: .cancel) {}
+            } message: {
+                Text("You've already earned your 15 Surges today. Come back tomorrow!")
+            }
+            .alert("Remove Habit?", isPresented: $showDeleteConfirm) {
+                Button("Remove", role: .destructive) {
+                    if let habit = habitToDelete {
+                        deleteHabit(habit)
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    habitToDelete = nil
+                }
+            } message: {
+                Text("This will permanently delete this habit and all its data including logs, journal entries, craving records, and progress. This cannot be undone.")
+            }
+            .alert("Tip", isPresented: $showDeleteTooltip) {
+                Button("Got It", role: .cancel) {}
+            } message: {
+                Text("Press and hold on any habit at the top to remove it and all its data.")
             }
         }
         .navigationViewStyle(.stack)
@@ -408,39 +525,43 @@ struct HomeView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(Array(activeHabits.enumerated()), id: \.element.id) { index, habit in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedHabitIndex = index
+                    let programType = ProgramType(rawValue: habit.programType) ?? .smoking
+                    Text(habit.name.isEmpty ? "Quit \(programType.displayName)" : habit.name)
+                        .font(Typography.caption)
+                        .lineLimit(1)
+                        .foregroundColor(selectedHabitIndex == index ? .white : .subtleText)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(
+                            selectedHabitIndex == index
+                                ? AnyView(
+                                    LinearGradient(
+                                        colors: [.neonCyan, .neonPurple],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                : AnyView(Color.cardBackground)
+                        )
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(
+                                    selectedHabitIndex == index
+                                        ? Color.clear
+                                        : Color.cardBorder,
+                                    lineWidth: 1
+                                )
+                        )
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedHabitIndex = index
+                            }
                         }
-                    } label: {
-                        Text(habit.name)
-                            .font(Typography.caption)
-                            .foregroundColor(selectedHabitIndex == index ? .white : .subtleText)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 7)
-                            .background(
-                                selectedHabitIndex == index
-                                    ? AnyView(
-                                        LinearGradient(
-                                            colors: [.neonCyan, .neonPurple],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    : AnyView(Color.cardBackground)
-                            )
-                            .cornerRadius(20)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(
-                                        selectedHabitIndex == index
-                                            ? Color.clear
-                                            : Color.cardBorder,
-                                        lineWidth: 1
-                                    )
-                            )
-                    }
-                    .buttonStyle(.plain)
+                        .onLongPressGesture {
+                            habitToDelete = habit
+                            showDeleteConfirm = true
+                        }
                 }
             }
         }
@@ -569,106 +690,90 @@ struct HomeView: View {
         .rainbowCard()
     }
 
-    private var morningPlanRow: some View {
+    private func dailyLoopRow(title: String, emoji: String, isComplete: Bool, isOpen: Bool, unlockHour: Int, duration: String, destination: @escaping (CDHabit) -> AnyView) -> some View {
         Group {
             if let habit = selectedHabit {
-                NavigationLink(destination: MorningPlanView(habit: habit)
-                    .id("morning_\(refreshTrigger)")
-                    .onDisappear { refreshTrigger = UUID() }
-                ) {
-                    HStack(spacing: 12) {
-                        Image(systemName: hasPledgedToday ? "checkmark.circle.fill" : "circle")
-                            .font(Typography.body)
-                            .foregroundColor(hasPledgedToday ? .neonGreen : .subtleText)
-
-                        Text("\u{2600}\u{FE0F} Morning Plan/Review")
-                            .font(Typography.body)
-                            .foregroundColor(hasPledgedToday ? .subtleText : .appText)
-                            .strikethrough(hasPledgedToday, color: .subtleText)
-
-                        Spacer()
-
-                        Text("1 min")
-                            .font(Typography.caption)
-                            .foregroundColor(.subtleText)
-
-                        Image(systemName: "chevron.right")
-                            .font(Typography.caption)
-                            .foregroundColor(.subtleText)
+                if isOpen || isComplete {
+                    NavigationLink(destination: destination(habit)
+                        .id("\(title)_\(refreshTrigger)")
+                        .onDisappear {
+                            refreshTrigger = UUID()
+                            checkAndAwardSurges()
+                        }
+                    ) {
+                        dailyLoopRowContent(title: title, emoji: emoji, isComplete: isComplete, isOpen: isOpen, unlockHour: unlockHour, duration: duration)
                     }
-                    .padding(.vertical, 6)
+                    .buttonStyle(.plain)
+                } else {
+                    Button {
+                        if !isHabitStarted, let h = selectedHabit {
+                            let f = DateFormatter(); f.dateStyle = .medium
+                            lockedMessage = "Your journey begins on \(f.string(from: h.startDate)). Daily loop will unlock then."
+                        } else {
+                            lockedMessage = "\(title) unlocks at \(lockedTimeString(hour: unlockHour))"
+                        }
+                        showLockedPopup = true
+                    } label: {
+                        dailyLoopRowContent(title: title, emoji: emoji, isComplete: isComplete, isOpen: isOpen, unlockHour: unlockHour, duration: duration)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
+    }
+
+    private func dailyLoopRowContent(title: String, emoji: String, isComplete: Bool, isOpen: Bool, unlockHour: Int, duration: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: isComplete ? "checkmark.circle.fill" : (isOpen ? "circle" : "lock.fill"))
+                .font(Typography.body)
+                .foregroundColor(isComplete ? .neonGreen : (isOpen ? .subtleText : .neonOrange))
+
+            Text("\(emoji) \(title)")
+                .font(Typography.body)
+                .foregroundColor(isComplete ? .subtleText : (isOpen ? .appText : .subtleText))
+                .strikethrough(isComplete, color: .subtleText)
+
+            Spacer()
+
+            if !isOpen && !isComplete {
+                Text(lockedTimeString(hour: unlockHour))
+                    .font(Typography.caption)
+                    .foregroundColor(.neonOrange)
+            } else {
+                Text(duration)
+                    .font(Typography.caption)
+                    .foregroundColor(.subtleText)
+            }
+
+            Image(systemName: isOpen || isComplete ? "chevron.right" : "lock.fill")
+                .font(Typography.caption)
+                .foregroundColor(isOpen || isComplete ? .subtleText : .neonOrange.opacity(0.5))
+        }
+        .padding(.vertical, 6)
+    }
+
+    private var morningPlanRow: some View {
+        dailyLoopRow(
+            title: "Morning Plan/Review", emoji: "\u{2600}\u{FE0F}",
+            isComplete: hasPledgedToday, isOpen: isMorningOpen,
+            unlockHour: morningUnlockHour, duration: "1 min"
+        ) { habit in AnyView(MorningPlanView(habit: habit)) }
     }
 
     private var quickCheckInRow: some View {
-        Group {
-            if let habit = selectedHabit {
-                NavigationLink(destination: QuickCheckInView(habit: habit)
-                    .id("checkin_\(refreshTrigger)")
-                    .onDisappear { refreshTrigger = UUID() }
-                ) {
-                    HStack(spacing: 12) {
-                        Image(systemName: hasCheckedInToday ? "checkmark.circle.fill" : "circle")
-                            .font(Typography.body)
-                            .foregroundColor(hasCheckedInToday ? .neonGreen : .subtleText)
-
-                        Text("\u{1F4CB} Afternoon Check-In")
-                            .font(Typography.body)
-                            .foregroundColor(hasCheckedInToday ? .subtleText : .appText)
-                            .strikethrough(hasCheckedInToday, color: .subtleText)
-
-                        Spacer()
-
-                        Text("30 sec")
-                            .font(Typography.caption)
-                            .foregroundColor(.subtleText)
-
-                        Image(systemName: "chevron.right")
-                            .font(Typography.caption)
-                            .foregroundColor(.subtleText)
-                    }
-                    .padding(.vertical, 6)
-                }
-                .buttonStyle(.plain)
-            }
-        }
+        dailyLoopRow(
+            title: "Afternoon Check-In", emoji: "\u{1F4CB}",
+            isComplete: hasCheckedInToday, isOpen: isAfternoonOpen,
+            unlockHour: afternoonUnlockHour, duration: "30 sec"
+        ) { habit in AnyView(QuickCheckInView(habit: habit)) }
     }
 
     private var eveningReviewRow: some View {
-        Group {
-            if let habit = selectedHabit {
-                NavigationLink(destination: EveningReviewView(habit: habit)
-                    .id("evening_\(refreshTrigger)")
-                    .onDisappear { refreshTrigger = UUID() }
-                ) {
-                    HStack(spacing: 12) {
-                        Image(systemName: hasCompletedEveningReview ? "checkmark.circle.fill" : "circle")
-                            .font(Typography.body)
-                            .foregroundColor(hasCompletedEveningReview ? .neonGreen : .subtleText)
-
-                        Text("\u{1F319} Evening Review/Reflection")
-                            .font(Typography.body)
-                            .foregroundColor(hasCompletedEveningReview ? .subtleText : .appText)
-                            .strikethrough(hasCompletedEveningReview, color: .subtleText)
-
-                        Spacer()
-
-                        Text("1 min")
-                            .font(Typography.caption)
-                            .foregroundColor(.subtleText)
-
-                        Image(systemName: "chevron.right")
-                            .font(Typography.caption)
-                            .foregroundColor(.subtleText)
-                    }
-                    .padding(.vertical, 6)
-                }
-                .buttonStyle(.plain)
-            }
-        }
+        dailyLoopRow(
+            title: "Evening Review/Reflection", emoji: "\u{1F319}",
+            isComplete: hasCompletedEveningReview, isOpen: isEveningOpen,
+            unlockHour: eveningUnlockHour, duration: "1 min"
+        ) { habit in AnyView(EveningReviewView(habit: habit)) }
     }
 
     // MARK: - [4] Recovery Scoreboard Mini
@@ -799,7 +904,7 @@ struct HomeView: View {
                         }
                     }
 
-                    Text("+\(totalDailyShardsEarned) Surges earned for completing your daily ritual")
+                    Text(hasEarnedSurgesToday ? "You've earned your daily Surges. Come back tomorrow!" : "+\(totalDailyShardsEarned) Surges earned for completing your daily ritual")
                         .font(Typography.caption)
                         .foregroundColor(.subtleText)
                         .multilineTextAlignment(.center)
@@ -883,6 +988,58 @@ struct HomeView: View {
     }
 
     // MARK: - Empty State
+
+    // MARK: - Delete Habit
+
+    private func deleteHabit(_ habit: CDHabit) {
+        // Delete all related entries
+        let logRequest = NSFetchRequest<CDDailyLogEntry>(entityName: "CDDailyLogEntry")
+        logRequest.predicate = NSPredicate(format: "habit == %@", habit)
+        if let logs = try? viewContext.fetch(logRequest) {
+            logs.forEach { viewContext.delete($0) }
+        }
+
+        let cravingRequest = NSFetchRequest<CDCravingEntry>(entityName: "CDCravingEntry")
+        cravingRequest.predicate = NSPredicate(format: "habit == %@", habit)
+        if let cravings = try? viewContext.fetch(cravingRequest) {
+            cravings.forEach { viewContext.delete($0) }
+        }
+
+        let journalRequest = NSFetchRequest<CDJournalEntry>(entityName: "CDJournalEntry")
+        journalRequest.predicate = NSPredicate(format: "habit == %@", habit)
+        if let journals = try? viewContext.fetch(journalRequest) {
+            journals.forEach { viewContext.delete($0) }
+        }
+
+        let planRequest = NSFetchRequest<CDIfThenPlan>(entityName: "CDIfThenPlan")
+        planRequest.predicate = NSPredicate(format: "habitId == %@", habit.id as CVarArg)
+        if let plans = try? viewContext.fetch(planRequest) {
+            plans.forEach { viewContext.delete($0) }
+        }
+
+        // Clean up UserDefaults keys tied to this habit
+        let habitId = habit.id.uuidString
+        let keysToRemove = [
+            "lastPledgeDate_\(habitId)",
+            "lastCheckInDate_\(habitId)",
+            "lastEveningReviewDate_\(habitId)",
+            "highRiskWindows_\(habitId)",
+            "goalComplete_\(habitId)",
+            "coachingDay_\(habitId)",
+            "coachingLastDate_\(habitId)"
+        ]
+        keysToRemove.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+
+        viewContext.delete(habit)
+        try? viewContext.save()
+
+        // Reset index if needed
+        if selectedHabitIndex >= activeHabits.count {
+            selectedHabitIndex = max(activeHabits.count - 1, 0)
+        }
+        habitToDelete = nil
+        refreshTrigger = UUID()
+    }
 
     // MARK: - Goal Completion Check
 

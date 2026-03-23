@@ -22,6 +22,7 @@ struct ValuesCompassView: View {
     @State private var confettiVisible: Bool = false
     @State private var pulseScale: CGFloat = 1.0
     @State private var showResistPopup = false
+    @State private var showLapseComfort = false
     @State private var didResistResult: Bool? = nil
 
     // Step 0: Value selection
@@ -91,10 +92,15 @@ struct ValuesCompassView: View {
             }
             Button("No, I gave in") {
                 trackToolCompletion(toolId: "valuesCompass", didResist: false, context: viewContext)
-                presentationMode.wrappedValue.dismiss()
+                showLapseComfort = true
             }
         } message: {
             Text("Did completing this tool help you resist your craving?")
+        }
+        .alert("It's okay.", isPresented: $showLapseComfort) {
+            Button("I'll Try Again") { presentationMode.wrappedValue.dismiss() }
+        } message: {
+            Text("A setback is not the end — it's a lesson. Your streak resets, but your courage doesn't. Every time you try again, you get stronger.")
         }
         .onAppear {
             // Always restart fresh
@@ -110,6 +116,8 @@ struct ValuesCompassView: View {
             pulseScale = 1.0
             showResistPopup = false
             didResistResult = nil
+            userValuesData = "[]"
+            valueActionsData = "[]"
         }
         .onReceive(actionTimer) { _ in
             guard timerRunning, timerRemaining > 0 else { return }
