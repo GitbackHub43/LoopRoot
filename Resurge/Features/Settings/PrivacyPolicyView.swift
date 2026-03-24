@@ -89,7 +89,6 @@ struct PrivacyPolicyView: View {
                 LoopRoot uses the following open-source libraries, none of which collect, transmit, or process user data:
 
                 - DGCharts: Local chart rendering for analytics displays
-                - Lottie: Local animation rendering for visual effects
                 - Swift Collections: Local data structure utilities
 
                 These libraries operate entirely on-device and do not communicate with any external services.

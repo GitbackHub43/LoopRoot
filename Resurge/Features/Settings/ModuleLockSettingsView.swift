@@ -5,7 +5,6 @@ struct ModuleLockSettingsView: View {
     @AppStorage("lock_journal") private var lockJournal = false
     @AppStorage("lock_cravings") private var lockCravings = false
     @AppStorage("lock_analytics") private var lockAnalytics = false
-    @AppStorage("lock_community") private var lockCommunity = false
     @AppStorage("lock_companion") private var lockCompanion = false
 
     @State private var biometricsAvailable = false
@@ -14,7 +13,6 @@ struct ModuleLockSettingsView: View {
         ("journal", "Journal", "book.fill"),
         ("cravings", "Cravings", "flame.fill"),
         ("analytics", "Analytics", "chart.bar.fill"),
-        ("community", "Community", "person.3.fill"),
         ("companion", "Companion", "heart.fill")
     ]
 
@@ -52,11 +50,6 @@ struct ModuleLockSettingsView: View {
                         icon: "chart.bar.fill",
                         name: "Analytics",
                         isOn: $lockAnalytics
-                    )
-                    moduleLockRow(
-                        icon: "person.3.fill",
-                        name: "Community",
-                        isOn: $lockCommunity
                     )
                     moduleLockRow(
                         icon: "heart.fill",
