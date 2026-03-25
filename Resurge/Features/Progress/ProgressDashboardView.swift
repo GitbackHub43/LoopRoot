@@ -705,8 +705,17 @@ struct ProgressDashboardView: View {
             }
         }
 
-        // No data for this day
+        // No entries for this day — check if it's a clean day (between startDate and today)
         let today = DebugDate.startOfToday
+        if let habit = selectedHabit {
+            let habitStart = calendar.startOfDay(for: habit.startDate)
+            if date >= habitStart && date <= today {
+                // Clean day — no entries but within recovery period, auto-fill green (no flame)
+                return DayDisplayStatus(color: Color.green.opacity(0.7), textColor: .white, showFlame: false)
+            }
+        }
+
+        // Before habit start or future
         if date <= today {
             return DayDisplayStatus(color: Color.gray.opacity(0.15), textColor: .subtleText, showFlame: false)
         }
