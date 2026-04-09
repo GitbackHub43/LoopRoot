@@ -162,6 +162,7 @@ struct MoreView: View {
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
 
     @ViewBuilder

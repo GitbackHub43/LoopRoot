@@ -303,7 +303,7 @@
 		75DE05BD79D810B11E1577C1 /* AlcoholToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlcoholToolsView.swift; sourceTree = "<group>"; };
 		76D4E5BB971C5C8A658F36FA /* CorrelationInsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrelationInsightsView.swift; sourceTree = "<group>"; };
 		775017BB6E81A4539B3BE964 /* CDAchievementProgress+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDAchievementProgress+Extensions.swift"; sourceTree = "<group>"; };
-		77A9E3DCAEFEEDEF334228D4 /* Resurge.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Resurge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		77A9E3DCAEFEEDEF334228D4 /* Resurge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Resurge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		787A1A447338166220F83031 /* CompanionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionView.swift; sourceTree = "<group>"; };
 		78D18EBE051E17396AD3AA31 /* PrivacyLockSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyLockSettingsView.swift; sourceTree = "<group>"; };
 		799CFF145599BF35A9DE17B7 /* CDCravingEntry+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDCravingEntry+Extensions.swift"; sourceTree = "<group>"; };
@@ -382,7 +382,7 @@
 		DDEB86DC2FA477C8C8B014D8 /* MotivationPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationPack.swift; sourceTree = "<group>"; };
 		DE566A8A09D719EC30E95225 /* QuickCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCheckInView.swift; sourceTree = "<group>"; };
 		DE7B46E2F029272D923BF1B1 /* HeatmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapView.swift; sourceTree = "<group>"; };
-		E28898C89170A6B63B8276F6 /* Resurge.storekit */ = {isa = PBXFileReference; path = Resurge.storekit; sourceTree = "<group>"; };
+		E28898C89170A6B63B8276F6 /* Resurge.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Resurge.storekit; sourceTree = "<group>"; };
 		E2A1348CA0C4624675414E05 /* AddHabitOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddHabitOnboardingView.swift; sourceTree = "<group>"; };
 		E5BDC09E4A665F222042603C /* RewardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardService.swift; sourceTree = "<group>"; };
 		E5C69F6A12CF43D34ED12627 /* CoachingPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachingPlanService.swift; sourceTree = "<group>"; };
@@ -941,7 +941,6 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					2096C99D7B20DD42205064B1 = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -1194,7 +1193,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = AQYV37UX98;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resurge/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -1205,6 +1204,10 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.looproot.app;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1338,7 +1341,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = AQYV37UX98;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resurge/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -1349,6 +1352,10 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.looproot.app;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
