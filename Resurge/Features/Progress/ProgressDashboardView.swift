@@ -131,6 +131,7 @@ struct ProgressDashboardView: View {
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
 
     // MARK: - Habit Pill Switcher
