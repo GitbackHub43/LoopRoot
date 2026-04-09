@@ -663,8 +663,28 @@ struct AddEditHabitView: View {
     }
 
     private func saveHabit() {
-        // Extract numeric values from program setup fields and usage fields
-        let parsedCost = Double(costPerUnit) ?? 0
+        // Extract cost from setup values if not manually set
+        var parsedCost = Double(costPerUnit) ?? 0
+        if parsedCost == 0 {
+            switch selectedProgramType {
+            case .smoking:
+                let packCost = Double(programSetupValues["costPerPack"] ?? "") ?? 0
+                parsedCost = packCost > 0 ? packCost / 20.0 : 0
+            case .alcohol:
+                parsedCost = Double(programSetupValues["costPerDrink"] ?? "") ?? 0
+            case .sugar:
+                let dailyCost = Double(programSetupValues["costPerDaySweets"] ?? "") ?? 0
+                let items = Double(programSetupValues["sugaryItemsPerDay"] ?? "") ?? 1
+                parsedCost = items > 0 ? dailyCost / items : 0
+            case .emotionalEating:
+                parsedCost = Double(programSetupValues["costPerEpisode"] ?? "") ?? 0
+            case .shopping:
+                parsedCost = Double(programSetupValues["costPerPurchase"] ?? "") ?? 0
+            case .gambling:
+                parsedCost = Double(programSetupValues["lossPerSession"] ?? "") ?? 0
+            default: break
+            }
+        }
         var parsedTime = Double(timePerUnit) ?? 0
         var parsedUnits = Double(dailyUnits) ?? 0
 

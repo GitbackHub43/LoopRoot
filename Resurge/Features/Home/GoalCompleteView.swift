@@ -4,7 +4,7 @@ import CoreData
 struct GoalCompleteView: View {
     @ObservedObject var habit: CDHabit
     @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.dismiss) private var dismiss
 
     @State private var showExtend = false
     @State private var celebrate = false
@@ -130,7 +130,7 @@ struct GoalCompleteView: View {
                             .padding(.horizontal, AppStyle.screenPadding)
 
                             Button {
-                                presentationMode.wrappedValue.dismiss()
+                                dismiss()
                             } label: {
                                 Text("I'm good for now")
                                     .font(Typography.callout)
@@ -159,6 +159,6 @@ struct GoalCompleteView: View {
         let oldKey = "goalComplete_\(habit.id.uuidString)_\(Int(habit.goalDays) - days)"
         // No need to clear — new goal has a different key
 
-        presentationMode.wrappedValue.dismiss()
+        dismiss()
     }
 }

@@ -406,6 +406,25 @@ struct HomeView: View {
             } message: {
                 Text("Press and hold on any habit at the top to remove it and all its data.")
             }
+            .alert("Track Money Saved", isPresented: $showCostPrompt) {
+                TextField("Daily cost ($)", text: $costPromptValue)
+                    .keyboardType(.decimalPad)
+                Button("Save") {
+                    if let cost = Double(costPromptValue), cost > 0, let habit = selectedHabit {
+                        habit.baselineCostPerDay = cost
+                        if habit.dailyUnits > 0 {
+                            habit.costPerUnit = cost / habit.dailyUnits
+                        } else {
+                            habit.costPerUnit = cost
+                        }
+                        try? viewContext.save()
+                        refreshTrigger = UUID()
+                    }
+                }
+                Button("Cancel", role: .cancel) { costPromptValue = "" }
+            } message: {
+                Text("How much do you spend per day on this habit? This will calculate your total money saved.")
+            }
         }
         .navigationViewStyle(.stack)
         .onAppear {
@@ -435,13 +454,21 @@ struct HomeView: View {
 
                 VStack(spacing: 8) {
                     if goal > 0 && days >= goal {
-                        // Goal reached!
-                        HStack {
-                            Image(systemName: "trophy.fill").foregroundColor(.neonGold)
-                            Text("Goal Reached!").font(Typography.headline).foregroundColor(.neonGold)
+                        // Goal reached — tap to extend
+                        Button {
+                            showGoalComplete = true
+                        } label: {
+                            VStack(spacing: 4) {
+                                HStack {
+                                    Image(systemName: "trophy.fill").foregroundColor(.neonGold)
+                                    Text("Goal Reached!").font(Typography.headline).foregroundColor(.neonGold)
+                                }
+                                Text("You've completed your \(goal)-day goal!")
+                                    .font(Typography.caption).foregroundColor(.subtleText)
+                                Text("Tap to extend your goal")
+                                    .font(.system(size: 11)).foregroundColor(.neonCyan)
+                            }
                         }
-                        Text("You've completed your \(goal)-day goal!")
-                            .font(Typography.caption).foregroundColor(.subtleText)
                     } else if goal > 0 {
                         // Progress toward goal
                         HStack {
@@ -803,8 +830,73 @@ struct HomeView: View {
         return logLapses + cravingLapses
     }
 
+    private var habitMoneySavedHome: Double {
+        guard let habit = selectedHabit else { return 0 }
+        return habit.moneySaved
+    }
+
+    private var habitHasCostData: Bool {
+        guard let habit = selectedHabit else { return false }
+        return habit.costPerUnit > 0 || habit.baselineCostPerDay > 0
+    }
+
+    private var isCostHabit: Bool {
+        guard let habit = selectedHabit,
+              let pt = ProgramType(rawValue: habit.programType) else { return false }
+        return [.smoking, .alcohol, .sugar, .emotionalEating, .shopping, .gambling].contains(pt)
+    }
+
+    @State private var showCostPrompt = false
+    @State private var costPromptValue = ""
+
     private var recoveryScoreboard: some View {
         VStack(spacing: 8) {
+            // Money saved banner
+            if habitHasCostData {
+                // Has cost data — show amount centered, tap to edit
+                Button {
+                    if let habit = selectedHabit {
+                        costPromptValue = habit.baselineCostPerDay > 0
+                            ? String(format: "%.2f", habit.baselineCostPerDay)
+                            : String(format: "%.2f", habit.costPerUnit * habit.dailyUnits)
+                    }
+                    showCostPrompt = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "dollarsign.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.neonGreen)
+                        Text("$\(String(format: "%.2f", habitMoneySavedHome)) saved")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.neonGreen)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .background(Color.neonGreen.opacity(0.08))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.neonGreen.opacity(0.2), lineWidth: 1))
+                }
+            } else if isCostHabit {
+                // Cost habit but no cost data — prompt to add
+                Button {
+                    showCostPrompt = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "dollarsign.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.neonGold)
+                        Text("Tap to track money saved")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.neonGold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .background(Color.neonGold.opacity(0.08))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.neonGold.opacity(0.2), lineWidth: 1))
+                }
+            }
+
             HStack(spacing: 8) {
                 scoreboardBox(
                     value: "\(selectedHabit?.daysSoberCount ?? 0)",

@@ -81,6 +81,18 @@ LoopRoot (codebase still named "Resurge" internally) is an iOS habit & addiction
 - Storage: `CDRewardWallet` (Core Data) + `@AppStorage("shardBalance")` synced on award and vault open
 - Premium-locked vault items: celebrations, pets, accessories, premium watch skins, premium themes
 
+## Money Saved (v1.1)
+
+- Only for 6 cost habits: smoking, alcohol, sugar, emotional eating, shopping, gambling
+- Non-cost habits (phone, social media, gaming, porn) — no cost field, no money display
+- Cost field added to onboarding "Customize Your Plan" step (stepper with $ prefix, $.XX format)
+- Calculation: `costPerUnit × dailyUnits × daysSoberCount`
+- Resets to $0 on lapse (same as time reclaimed — both use daysSoberCount)
+- Home screen: green "$X.XX saved" banner, tap to edit daily cost
+- Insights: Money Saved card between Time Reclaimed and Badges
+- Existing v1.0 users: gold "Tap to track money saved" prompt on home for cost habits with no data
+- Goal completion: tappable inline card opens extend sheet (7d/30d/90d/180d/365d)
+
 ## Lapse System
 
 - Lapse detected in: QuickCheckInView, EveningReviewView, CravingModeView (didResist=false), ALL toolkit tools (trackToolCompletion with didResist=false)

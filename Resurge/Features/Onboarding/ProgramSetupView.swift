@@ -251,32 +251,42 @@ struct ProgramSetupView: View {
     // MARK: - Number Field (Slider)
 
     private func numberField(field: ProgramSetupField, range: ClosedRange<Double>, step: Double) -> some View {
+        let isMoney = field.unit == "$"
         let currentValue = Double(setupValues[field.key] ?? field.placeholder) ?? range.lowerBound
 
         return VStack(spacing: 12) {
             // Large value display
-            Text(formatNumber(currentValue, step: step))
-                .font(Typography.counterLarge)
-                .foregroundColor(.neonCyan)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .shadow(color: .neonCyan.opacity(0.3), radius: 6)
+            HStack(spacing: 4) {
+                if isMoney {
+                    Text("$")
+                        .font(Typography.counterLarge)
+                        .foregroundColor(.neonGreen)
+                        .shadow(color: .neonGreen.opacity(0.3), radius: 6)
+                }
+                Text(formatNumber(currentValue, step: step, isMoney: isMoney))
+                    .font(Typography.counterLarge)
+                    .foregroundColor(isMoney ? .neonGreen : .neonCyan)
+                    .shadow(color: (isMoney ? Color.neonGreen : Color.neonCyan).opacity(0.3), radius: 6)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
 
             // +/- buttons with range display
             HStack(spacing: 20) {
                 // Minus button
                 Button {
                     let newVal = max(currentValue - step, range.lowerBound)
-                    setupValues[field.key] = formatNumber(newVal, step: step)
+                    setupValues[field.key] = formatNumber(newVal, step: step, isMoney: isMoney)
                 } label: {
                     Image(systemName: "minus.circle.fill")
                         .font(.system(size: 44))
-                        .foregroundColor(currentValue <= range.lowerBound ? .gray.opacity(0.3) : .neonCyan)
+                        .foregroundColor(currentValue <= range.lowerBound ? .gray.opacity(0.3) : (isMoney ? .neonGreen : .neonCyan))
                 }
                 .disabled(currentValue <= range.lowerBound)
 
                 // Range label
                 VStack(spacing: 2) {
-                    Text("\(formatNumber(range.lowerBound, step: step)) – \(formatNumber(range.upperBound, step: step))")
+                    let prefix = isMoney ? "$" : ""
+                    Text("\(prefix)\(formatNumber(range.lowerBound, step: step, isMoney: isMoney)) – \(prefix)\(formatNumber(range.upperBound, step: step, isMoney: isMoney))")
                         .font(Typography.caption)
                         .foregroundColor(.subtleText)
                 }
@@ -284,11 +294,11 @@ struct ProgramSetupView: View {
                 // Plus button
                 Button {
                     let newVal = min(currentValue + step, range.upperBound)
-                    setupValues[field.key] = formatNumber(newVal, step: step)
+                    setupValues[field.key] = formatNumber(newVal, step: step, isMoney: isMoney)
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 44))
-                        .foregroundColor(currentValue >= range.upperBound ? .gray.opacity(0.3) : .neonCyan)
+                        .foregroundColor(currentValue >= range.upperBound ? .gray.opacity(0.3) : (isMoney ? .neonGreen : .neonCyan))
                 }
                 .disabled(currentValue >= range.upperBound)
             }
@@ -519,8 +529,10 @@ struct ProgramSetupView: View {
 
     // MARK: - Helpers
 
-    private func formatNumber(_ value: Double, step: Double) -> String {
-        if step >= 1 {
+    private func formatNumber(_ value: Double, step: Double, isMoney: Bool = false) -> String {
+        if isMoney {
+            return String(format: "%.2f", value)
+        } else if step >= 1 {
             return "\(Int(value))"
         } else {
             return String(format: "%.1f", value)

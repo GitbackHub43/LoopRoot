@@ -101,6 +101,14 @@ struct ProgressDashboardView: View {
                         RainbowDivider()
                             .padding(.horizontal, AppStyle.screenPadding)
 
+                        // [3.5] Money Saved (only for cost habits with data)
+                        if isCostHabitInsights {
+                            moneySavedSection
+
+                            RainbowDivider()
+                                .padding(.horizontal, AppStyle.screenPadding)
+                        }
+
                         // [4] Badges
                         badgesSection
 
@@ -450,6 +458,43 @@ struct ProgressDashboardView: View {
             .frame(maxWidth: .infinity)
         }
         .neonCard(glow: .neonCyan)
+        .padding(.horizontal, AppStyle.screenPadding)
+    }
+
+    // MARK: - [3.5] Money Saved Section
+
+    private var habitMoneySaved: Double {
+        guard let habit = selectedHabit else { return 0 }
+        return habit.moneySaved
+    }
+
+    private var isCostHabitInsights: Bool {
+        guard let habit = selectedHabit,
+              let pt = ProgramType(rawValue: habit.programType) else { return false }
+        let costTypes: [ProgramType] = [.smoking, .alcohol, .sugar, .emotionalEating, .shopping, .gambling]
+        return costTypes.contains(pt) && (habit.costPerUnit > 0 || habit.baselineCostPerDay > 0)
+    }
+
+    private var moneySavedSection: some View {
+        VStack(alignment: .leading, spacing: AppStyle.spacing) {
+            sectionHeader(icon: "dollarsign.circle.fill", title: "Money Saved", color: .neonGreen)
+
+            VStack(spacing: 8) {
+                Text("$\(String(format: "%.2f", habitMoneySaved))")
+                    .font(Typography.statValue)
+                    .foregroundColor(.neonGreen)
+
+                if let habit = selectedHabit, habit.costPerUnit > 0 {
+                    let dailySavings = habit.costPerUnit * habit.dailyUnits
+                    Text("$\(String(format: "%.2f", dailySavings))/day saved")
+                        .font(Typography.footnote)
+                        .foregroundColor(.textSecondary)
+                        .italic()
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .neonCard(glow: .neonGreen)
         .padding(.horizontal, AppStyle.screenPadding)
     }
 

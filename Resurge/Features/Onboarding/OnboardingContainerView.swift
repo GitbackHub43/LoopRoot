@@ -204,18 +204,45 @@ struct OnboardingContainerView: View {
         case .oneYear:      goalDays = 365
         }
 
+        let costPerUnit = calculateCostPerUnit()
+
         environment.habitRepository.create(
             name: habitName.isEmpty ? "Quit \(selectedProgramType.displayName)" : habitName,
             programType: selectedProgramType,
             startDate: startDate,
             goalDays: goalDays,
-            costPerUnit: 0,
+            costPerUnit: costPerUnit,
             timePerUnit: 0,
             dailyUnits: dailyUnits,
             reasonToQuit: reasonToQuit.isEmpty ? nil : reasonToQuit
         )
 
         onComplete()
+    }
+
+    /// Calculate cost per unit from setup values based on program type
+    private func calculateCostPerUnit() -> Double {
+        switch selectedProgramType {
+        case .smoking:
+            // costPerPack / 20 cigarettes = cost per cigarette
+            let packCost = Double(programSetupValues["costPerPack"] ?? "") ?? 0
+            return packCost > 0 ? packCost / 20.0 : 0
+        case .alcohol:
+            return Double(programSetupValues["costPerDrink"] ?? "") ?? 0
+        case .sugar:
+            // costPerDaySweets / sugaryItemsPerDay = cost per item
+            let dailyCost = Double(programSetupValues["costPerDaySweets"] ?? "") ?? 0
+            let items = Double(programSetupValues["sugaryItemsPerDay"] ?? "") ?? 1
+            return items > 0 ? dailyCost / items : 0
+        case .emotionalEating:
+            return Double(programSetupValues["costPerEpisode"] ?? "") ?? 0
+        case .shopping:
+            return Double(programSetupValues["costPerPurchase"] ?? "") ?? 0
+        case .gambling:
+            return Double(programSetupValues["lossPerSession"] ?? "") ?? 0
+        default:
+            return 0
+        }
     }
 }
 

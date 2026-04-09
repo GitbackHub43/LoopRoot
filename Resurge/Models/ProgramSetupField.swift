@@ -28,6 +28,13 @@ extension ProgramType {
                     key: "cigarettesPerDay"
                 ),
                 ProgramSetupField(
+                    label: "How much does a pack cost?",
+                    placeholder: "8",
+                    unit: "$",
+                    fieldType: .number(range: 1...30, step: 0.5),
+                    key: "costPerPack"
+                ),
+                ProgramSetupField(
                     label: "How long have you been smoking?",
                     placeholder: "Select range",
                     unit: "years",
@@ -44,6 +51,13 @@ extension ProgramType {
                     unit: "drinks",
                     fieldType: .number(range: 1...50, step: 1),
                     key: "drinksPerWeek"
+                ),
+                ProgramSetupField(
+                    label: "How much per drink on average?",
+                    placeholder: "8",
+                    unit: "$",
+                    fieldType: .number(range: 1...50, step: 0.5),
+                    key: "costPerDrink"
                 ),
                 ProgramSetupField(
                     label: "What do you mostly drink?",
@@ -150,6 +164,13 @@ extension ProgramType {
                     key: "sugaryItemsPerDay"
                 ),
                 ProgramSetupField(
+                    label: "How much do you spend on sweets per day?",
+                    placeholder: "5",
+                    unit: "$",
+                    fieldType: .number(range: 1...100, step: 1),
+                    key: "costPerDaySweets"
+                ),
+                ProgramSetupField(
                     label: "What type of sugar do you consume most?",
                     placeholder: "Select type",
                     unit: "",
@@ -167,6 +188,13 @@ extension ProgramType {
                     fieldType: .number(range: 1...14, step: 1),
                     key: "episodesPerWeek"
                 ),
+                ProgramSetupField(
+                    label: "How much do you spend per episode?",
+                    placeholder: "10",
+                    unit: "$",
+                    fieldType: .number(range: 1...100, step: 1),
+                    key: "costPerEpisode"
+                ),
             ]
 
         case .shopping:
@@ -178,6 +206,13 @@ extension ProgramType {
                     fieldType: .number(range: 1...20, step: 1),
                     key: "purchasesPerWeek"
                 ),
+                ProgramSetupField(
+                    label: "Average spend per impulse purchase?",
+                    placeholder: "25",
+                    unit: "$",
+                    fieldType: .number(range: 1...2000, step: 10),
+                    key: "costPerPurchase"
+                ),
             ]
 
         case .gambling:
@@ -188,6 +223,13 @@ extension ProgramType {
                     unit: "betting sessions",
                     fieldType: .number(range: 1...14, step: 1),
                     key: "sessionsPerWeek"
+                ),
+                ProgramSetupField(
+                    label: "How much do you typically lose per session?",
+                    placeholder: "50",
+                    unit: "$",
+                    fieldType: .number(range: 1...5000, step: 25),
+                    key: "lossPerSession"
                 ),
                 ProgramSetupField(
                     label: "Type of gambling",
